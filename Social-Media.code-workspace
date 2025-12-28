@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "../Social-Media"
+		},
+		{
+			"path": "../Social-Media-backend"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../mobile_homework"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Web"
+	}
+}
