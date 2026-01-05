@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:device_preview/device_preview.dart';
-import 'presentation/login_screen.dart';
+import 'package:flutter_social_media_app/representation/routes/app_router.dart';
+import 'package:flutter_social_media_app/representation/routes/route_names.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -8,15 +8,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-      title: 'SocialzZz',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF6B35)),
-        useMaterial3: true,
-      ),
-      home: const LoginScreen(),
+      title: 'SocialzZz',
+
+      initialRoute: RouteNames.splash,
+      onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
 }

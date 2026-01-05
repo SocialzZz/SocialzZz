@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_media_app/representation/routes/route_names.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,10 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Hi! Welcome back, you\'ve been missed',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 32),
                 // Email field
@@ -70,10 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: const Text(
                       'Forgot Password?',
-                      style: TextStyle(
-                        color: Color(0xFFFF6B35),
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Color(0xFFFF6B35), fontSize: 14),
                     ),
                   ),
                 ),
@@ -127,19 +122,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 24,
                       height: 24,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Text('G', style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ));
+                        return const Text(
+                          'G',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        );
                       },
                     ),
                     label: const Text(
                       'Đăng nhập bằng Google',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -162,7 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
                         );
                       },
                       child: const Text(
@@ -270,14 +267,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() {
-    // TODO: Implement login logic
     final email = _emailController.text;
     final password = _passwordController.text;
     debugPrint('Login with: $email');
+
+    Navigator.pushNamed(context, RouteNames.home);
   }
 
   void _handleGoogleSignIn() {
-    // TODO: Implement Google sign in
     debugPrint('Google sign in');
   }
 }
