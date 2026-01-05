@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_social_media_app/representation/routes/route_names.dart';
+import 'package:flutter_social_media_app/routes/route_names.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {

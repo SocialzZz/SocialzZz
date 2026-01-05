@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/home/home_screen.dart';
 import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
 
-import '../splash/splash_screen.dart';
-import '../auth/login_screen.dart';
-import '../auth/register_screen.dart';
-import '../routes/route_names.dart';
+import '../representation/splash/splash_screen.dart';
+import '../representation/auth/login_screen.dart';
+import '../representation/auth/register_screen.dart';
+import 'route_names.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {

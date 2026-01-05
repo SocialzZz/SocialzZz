@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_social_media_app/representation/routes/route_names.dart';
+import 'package:flutter_social_media_app/routes/route_names.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -18,7 +18,7 @@ class Welcome extends StatelessWidget {
               height: 120,
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 10),
 
             const Text.rich(
               TextSpan(
@@ -33,7 +33,7 @@ class Welcome extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 5),
 
             const SizedBox(
               width: 300,
@@ -44,7 +44,7 @@ class Welcome extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 35),
 
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -59,7 +59,7 @@ class Welcome extends StatelessWidget {
               },
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 10),
 
             Text.rich(
               TextSpan(
