@@ -41,7 +41,7 @@ class AppBottomNavBar extends StatelessWidget {
             children: [
               Icon(icon, color: iconColor, size: size),
               // Thanh gạch chân màu cam
-              if (isSelected)
+              if (isSelected && selectedIndex != 2)
                 Container(
                   margin: const EdgeInsets.only(top: 4),
                   height: 3,
@@ -77,12 +77,7 @@ class AppBottomNavBar extends StatelessWidget {
           children: [
             _buildNavItem(Icons.home, 0, primaryColor, onItemTapped),
 
-            _buildNavItem(
-              Icons.videocam_outlined,
-              1,
-              primaryColor,
-              onItemTapped,
-            ),
+            _buildNavItem(Icons.ondemand_video, 1, primaryColor, onItemTapped),
 
             _buildNavItem(
               Icons.add_circle_outline,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_social_media_app/representation/home/home_screen.dart';
+import 'package:flutter_social_media_app/representation/home/main_screen.dart';
 import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
 
 import '../representation/splash/splash_screen.dart';
@@ -23,7 +23,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
 
       case RouteNames.home:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return MaterialPageRoute(builder: (_) => const MainScreen());
 
       default:
         return MaterialPageRoute(
