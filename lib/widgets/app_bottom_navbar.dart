@@ -71,7 +71,7 @@ class AppBottomNavBar extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(30)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

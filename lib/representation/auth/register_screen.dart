@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_media_app/routes/route_names.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -67,14 +68,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   label: 'Password',
                   controller: _passwordController,
                   obscure: _obscurePassword,
-                  onToggle: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onToggle: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 ),
                 const SizedBox(height: 16),
                 _buildPasswordField(
                   label: 'Confirm Password',
                   controller: _confirmPasswordController,
                   obscure: _obscureConfirmPassword,
-                  onToggle: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                  onToggle: () => setState(
+                    () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
@@ -118,11 +122,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 50,
                   child: OutlinedButton.icon(
                     onPressed: _handleGoogleSignUp,
-                    icon: const Text('G', style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    )),
+                    icon: const Text(
+                      'G',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
                     label: const Text(
                       'Sign up with Google',
                       style: TextStyle(fontSize: 14, color: Colors.black87),
@@ -144,7 +151,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () =>
+                          Navigator.pushNamed(context, RouteNames.login),
                       child: const Text(
                         'Sign in',
                         style: TextStyle(
@@ -173,7 +181,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -186,7 +197,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
           ),
         ),
       ],
@@ -202,7 +216,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -216,7 +233,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             suffixIcon: IconButton(
               icon: Icon(
                 obscure ? Icons.visibility_off : Icons.visibility,
@@ -237,9 +257,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
     debugPrint('Register: $name, $email');
