@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/home/main_screen.dart';
+import 'package:flutter_social_media_app/representation/profile/editprofile_screen.dart';
 import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
 
 import '../representation/splash/splash_screen.dart';
@@ -33,6 +34,9 @@ class AppRouter {
 
       case RouteNames.profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
+
+      case RouteNames.editProfile:
+        return MaterialPageRoute(builder: (_) => const EditprofileScreen());
 
       case RouteNames.setting:
         return MaterialPageRoute(builder: (_) => const SettingScreen());

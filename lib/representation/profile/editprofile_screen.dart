@@ -2,18 +2,26 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class EditprofileScreen extends StatefulWidget {
+  const EditprofileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<EditprofileScreen> createState() => _EditprofileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final TextEditingController _nameController = TextEditingController(text: 'Brooklyn Simmons');
-  final TextEditingController _usernameController = TextEditingController(text: 'brooklyn_simmons');
-  final TextEditingController _phoneController = TextEditingController(text: '603.555.0123');
-  final TextEditingController _emailController = TextEditingController(text: 'example@gmail.com');
+class _EditprofileScreenState extends State<EditprofileScreen> {
+  final TextEditingController _nameController = TextEditingController(
+    text: 'Brooklyn Simmons',
+  );
+  final TextEditingController _usernameController = TextEditingController(
+    text: 'brooklyn_simmons',
+  );
+  final TextEditingController _phoneController = TextEditingController(
+    text: '603.555.0123',
+  );
+  final TextEditingController _emailController = TextEditingController(
+    text: 'example@gmail.com',
+  );
   final TextEditingController _dobController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
@@ -105,10 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 48),
               // Name Field
-              _buildTextField(
-                label: 'Name',
-                controller: _nameController,
-              ),
+              _buildTextField(label: 'Name', controller: _nameController),
               const SizedBox(height: 24),
               // Username Field with Change Button
               Column(
@@ -192,10 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 24),
               // Email Field
-              _buildTextField(
-                label: 'Email',
-                controller: _emailController,
-              ),
+              _buildTextField(label: 'Email', controller: _emailController),
               const SizedBox(height: 24),
               // DOB Field
               _buildTextField(
@@ -256,15 +258,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Color(0xFF212121),
-          ),
+          style: const TextStyle(fontSize: 16, color: Color(0xFF212121)),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: const TextStyle(
-              color: Color(0xFF9E9E9E),
-            ),
+            hintStyle: const TextStyle(color: Color(0xFF9E9E9E)),
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(
@@ -273,21 +270,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFE0E0E0),
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFE0E0E0),
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFE0E0E0),
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
             ),
           ),
         ),
@@ -303,7 +294,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         maxHeight: 512,
         imageQuality: 85,
       );
-      
+
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
@@ -321,4 +312,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 }
-

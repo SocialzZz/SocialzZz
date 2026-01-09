@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/home/home_screen.dart';
+import 'package:flutter_social_media_app/representation/post/create_post_screen.dart';
+import 'package:flutter_social_media_app/representation/profile/profile_screen.dart';
 import '../../widgets/app_bottom_navbar.dart';
 
 class MainScreen extends StatefulWidget {
@@ -15,9 +17,9 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const Center(child: Text("Reels/Discovery Screen")),
-    const Center(child: Text("Create Post Screen")),
+    const CreatePostScreen(),
     const Center(child: Text("Messages Screen")),
-    const Center(child: Text("Profile Screen")),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {

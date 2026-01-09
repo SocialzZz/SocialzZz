@@ -6,6 +6,7 @@ class RouteNames {
   static const home = '/home';
   static const post = '/create-post';
   static const profile = '/profile';
+  static const editProfile = '/edit-profile';
   static const search = '/search';
   static const setting = '/setting';
 }
