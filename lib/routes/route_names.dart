@@ -4,4 +4,8 @@ class RouteNames {
   static const login = '/login';
   static const register = '/register';
   static const home = '/home';
+  static const post = '/create-post';
+  static const profile = '/profile';
+  static const search = '/search';
+  static const setting = '/setting';
 }
