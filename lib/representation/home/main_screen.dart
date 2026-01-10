@@ -3,6 +3,7 @@ import 'package:flutter_social_media_app/representation/home/home_screen.dart';
 import 'package:flutter_social_media_app/representation/post/create_post_screen.dart';
 import 'package:flutter_social_media_app/representation/profile/profile_screen.dart';
 import '../../widgets/app_bottom_navbar.dart';
+import '../message/message_list_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const Center(child: Text("Reels/Discovery Screen")),
     const CreatePostScreen(),
-    const Center(child: Text("Messages Screen")),
+    const MessageListScreen(),
     const ProfileScreen(),
   ];
 
