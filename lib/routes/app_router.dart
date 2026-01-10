@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/home/main_screen.dart';
+import 'package:flutter_social_media_app/representation/notification/notification_screen.dart';
 import 'package:flutter_social_media_app/representation/profile/editprofile_screen.dart';
+import 'package:flutter_social_media_app/representation/search/search_screen.dart';
 import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
 
 import '../representation/splash/splash_screen.dart';
@@ -29,6 +31,9 @@ class AppRouter {
       case RouteNames.home:
         return MaterialPageRoute(builder: (_) => const MainScreen());
 
+      case RouteNames.search:
+        return MaterialPageRoute(builder: (_) => const SearchScreen());
+
       case RouteNames.post:
         return MaterialPageRoute(builder: (_) => const CreatePostScreen());
 
@@ -37,6 +42,9 @@ class AppRouter {
 
       case RouteNames.editProfile:
         return MaterialPageRoute(builder: (_) => const EditprofileScreen());
+
+      case RouteNames.notification:
+        return MaterialPageRoute(builder: (_) => const NotificationScreen());
 
       case RouteNames.setting:
         return MaterialPageRoute(builder: (_) => const SettingScreen());

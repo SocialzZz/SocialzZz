@@ -329,12 +329,12 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildCircleIconBtn(IconData icon) {
     return Container(
-      width: 30,
-      height: 30,
+      width: 35,
+      height: 35,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: borderColor), // Sửa lỗi Colors.borderColor
+        border: Border.all(color: borderColor),
       ),
       child: Icon(icon, size: 16, color: const Color(0xFF1D1B20)),
     );

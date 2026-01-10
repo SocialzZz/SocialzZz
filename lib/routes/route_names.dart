@@ -9,4 +9,5 @@ class RouteNames {
   static const editProfile = '/edit-profile';
   static const search = '/search';
   static const setting = '/setting';
+  static const notification = '/notification';
 }

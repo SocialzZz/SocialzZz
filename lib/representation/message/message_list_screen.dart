@@ -20,12 +20,42 @@ class _MessageListScreenState extends State<MessageListScreen> {
   ];
 
   final List<Map<String, dynamic>> _messages = [
-    {'name': 'Carla Schoen', 'avatar': 'https://i.pravatar.cc/150?img=10', 'lastMessage': 'How Are You?', 'time': '09:34 PM'},
-    {'name': 'Sheila Lemke', 'avatar': 'https://i.pravatar.cc/150?img=11', 'lastMessage': 'Thanks', 'time': '09:34 PM'},
-    {'name': 'Deanna Botsford', 'avatar': 'https://i.pravatar.cc/150?img=12', 'lastMessage': 'Welcome!', 'time': '09:34 PM'},
-    {'name': 'Katie Bergnaum', 'avatar': 'https://i.pravatar.cc/150?img=13', 'lastMessage': 'Good Morning!', 'time': '09:34 PM'},
-    {'name': 'Armando Ferry', 'avatar': 'https://i.pravatar.cc/150?img=14', 'lastMessage': 'Good Morning!', 'time': '09:34 PM'},
-    {'name': 'Annette Fritsch', 'avatar': 'https://i.pravatar.cc/150?img=15', 'lastMessage': 'Thanks!', 'time': '09:34 PM'},
+    {
+      'name': 'Carla Schoen',
+      'avatar': 'https://i.pravatar.cc/150?img=10',
+      'lastMessage': 'How Are You?',
+      'time': '09:34 PM',
+    },
+    {
+      'name': 'Sheila Lemke',
+      'avatar': 'https://i.pravatar.cc/150?img=11',
+      'lastMessage': 'Thanks',
+      'time': '09:34 PM',
+    },
+    {
+      'name': 'Deanna Botsford',
+      'avatar': 'https://i.pravatar.cc/150?img=12',
+      'lastMessage': 'Welcome!',
+      'time': '09:34 PM',
+    },
+    {
+      'name': 'Katie Bergnaum',
+      'avatar': 'https://i.pravatar.cc/150?img=13',
+      'lastMessage': 'Good Morning!',
+      'time': '09:34 PM',
+    },
+    {
+      'name': 'Armando Ferry',
+      'avatar': 'https://i.pravatar.cc/150?img=14',
+      'lastMessage': 'Good Morning!',
+      'time': '09:34 PM',
+    },
+    {
+      'name': 'Annette Fritsch',
+      'avatar': 'https://i.pravatar.cc/150?img=15',
+      'lastMessage': 'Thanks!',
+      'time': '09:34 PM',
+    },
   ];
 
   @override
@@ -47,21 +77,34 @@ class _MessageListScreenState extends State<MessageListScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            width: 35,
+            height: 35,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
             child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
           ),
-          const Text('Chat', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600)),
+          const Text(
+            'Chat',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            width: 35,
+            height: 35,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
             child: const Icon(Icons.search, color: Colors.black, size: 20),
           ),
         ],
@@ -84,7 +127,10 @@ class _MessageListScreenState extends State<MessageListScreen> {
               children: [
                 Stack(
                   children: [
-                    CircleAvatar(radius: 28, backgroundImage: NetworkImage(user['avatar']!)),
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundImage: NetworkImage(user['avatar']!),
+                    ),
                     Positioned(
                       bottom: 2,
                       right: 2,
@@ -100,8 +146,15 @@ class _MessageListScreenState extends State<MessageListScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(user['name']!, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                const SizedBox(height: 4),
+                Text(
+                  user['name']!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           );
@@ -114,10 +167,16 @@ class _MessageListScreenState extends State<MessageListScreen> {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
         child: ListView.builder(
           padding: const EdgeInsets.only(top: 20),
           itemCount: _messages.length,
@@ -131,25 +190,46 @@ class _MessageListScreenState extends State<MessageListScreen> {
     return InkWell(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ChatDetailScreen(name: message['name'], avatar: message['avatar'])),
+        MaterialPageRoute(
+          builder: (context) => ChatDetailScreen(
+            name: message['name'],
+            avatar: message['avatar'],
+          ),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           children: [
-            CircleAvatar(radius: 26, backgroundImage: NetworkImage(message['avatar'])),
+            CircleAvatar(
+              radius: 26,
+              backgroundImage: NetworkImage(message['avatar']),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(message['name'], style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
+                  Text(
+                    message['name'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(message['lastMessage'], style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+                  Text(
+                    message['lastMessage'],
+                    style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                  ),
                 ],
               ),
             ),
-            Text(message['time'], style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+            Text(
+              message['time'],
+              style: TextStyle(color: Colors.grey[400], fontSize: 12),
+            ),
           ],
         ),
       ),

@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     child: const Text(
-                      'Đăng nhập',
+                      'Log in',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     label: const Text(
-                      'Đăng nhập bằng Google',
+                      'Sign in with google',
                       style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                     style: OutlinedButton.styleFrom(

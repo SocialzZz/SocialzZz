@@ -122,23 +122,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 50,
                   child: OutlinedButton.icon(
                     onPressed: _handleGoogleSignUp,
-                    icon: const Text(
-                      'G',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
+                    icon: Image.network(
+                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                      height: 24,
                     ),
                     label: const Text(
                       'Sign up with Google',
-                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                       side: BorderSide(color: Colors.grey[300]!),
+                      backgroundColor: Colors.white,
                     ),
                   ),
                 ),

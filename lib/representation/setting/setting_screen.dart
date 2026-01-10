@@ -9,7 +9,7 @@ class SettingItem {
   final String subtitle; // Subtitle is now mandatory for better UX
   final IconData icon;
   final SettingType type;
-  bool value; 
+  bool value;
 
   SettingItem({
     required this.id,
@@ -36,73 +36,74 @@ class _SettingScreenState extends State<SettingScreen> {
   static const Color destructiveColor = Color(0xFFD32F2F);
 
   // DATA SOURCES
-  
+
   //  Account Section
   List<SettingItem> accountSettings = [
     SettingItem(
-      id: 'edit_profile', 
-      title: 'Edit Profile', 
+      id: 'edit_profile',
+      title: 'Edit Profile',
       subtitle: 'Update your personal information',
-      icon: Icons.person_outline
+      icon: Icons.person_outline,
     ),
     SettingItem(
-      id: 'change_password', 
-      title: 'Change Password', 
+      id: 'change_password',
+      title: 'Change Password',
       subtitle: 'Ensure your account security',
-      icon: Icons.lock_outline
+      icon: Icons.lock_outline,
     ),
     SettingItem(
-      id: 'privacy', 
-      title: 'Privacy', 
+      id: 'privacy',
+      title: 'Privacy',
       subtitle: 'Control who sees your profile',
-      icon: Icons.privacy_tip_outlined
+      icon: Icons.privacy_tip_outlined,
     ),
   ];
 
   //  Appearance Section
   List<SettingItem> appearanceSettings = [
     SettingItem(
-      id: 'theme', 
-      title: 'Theme', 
+      id: 'theme',
+      title: 'Theme',
       subtitle: 'Light & Dark mode',
       icon: Icons.palette_outlined, // Or brightness_6_outlined
-      type: SettingType.navigation, // Usually opens a modal/screen to select theme
+      type: SettingType
+          .navigation, // Usually opens a modal/screen to select theme
     ),
   ];
 
   //  General Section (Notifications, Language)
   List<SettingItem> generalSettings = [
     SettingItem(
-      id: 'notification', 
-      title: 'Notifications', 
+      id: 'notification',
+      title: 'Notifications',
       subtitle: 'Manage push notifications',
-      icon: Icons.notifications_none, 
-      type: SettingType.toggle, 
-      value: true
+      icon: Icons.notifications_none,
+      type: SettingType.toggle,
+      value: true,
     ),
     SettingItem(
-      id: 'language', 
-      title: 'Language', 
+      id: 'language',
+      title: 'Language',
       subtitle: 'English (Default)',
-      icon: Icons.language, 
-      type: SettingType.navigation
+      icon: Icons.language,
+      type: SettingType.navigation,
     ),
   ];
 
   //  Other Section (About, Delete)
   List<SettingItem> otherSettings = [
     SettingItem(
-      id: 'about_us', 
-      title: 'About Us', 
+      id: 'about_us',
+      title: 'About Us',
       subtitle: 'Learn more about our team',
-      icon: Icons.info_outline
+      icon: Icons.info_outline,
     ),
     SettingItem(
-      id: 'delete_account', 
-      title: 'Delete Account', 
+      id: 'delete_account',
+      title: 'Delete Account',
       subtitle: 'Permanently remove your account',
       icon: Icons.delete_outline,
-      type: SettingType.destructive // Custom type for red text/icon
+      type: SettingType.destructive, // Custom type for red text/icon
     ),
   ];
 
@@ -130,12 +131,15 @@ class _SettingScreenState extends State<SettingScreen> {
         title: const Text("Delete Account?"),
         content: const Text("This action cannot be undone. Are you sure?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel"),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               _handleLogout(); // Reuse logout for demo
-            }, 
+            },
             child: const Text("Delete", style: TextStyle(color: Colors.red)),
           ),
         ],
@@ -155,21 +159,27 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainOrange, 
+      backgroundColor: mainOrange,
       body: Stack(
         children: [
           //  Header (Back Button + Title)
           Positioned(
-            top: 0, left: 0, right: 0,
+            top: 0,
+            left: 0,
+            right: 0,
             height: 120,
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     // Back Button
                     Container(
-                      width: 32, height: 32,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
@@ -182,7 +192,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
                     ),
-                    
+
                     // Title
                     const Expanded(
                       child: Text(
@@ -206,9 +216,9 @@ class _SettingScreenState extends State<SettingScreen> {
 
           //  White Card Content
           Positioned(
-            top: 80,
-            left: 0, 
-            right: 0, 
+            top: 90,
+            left: 0,
+            right: 0,
             bottom: 0,
             child: Container(
               decoration: const BoxDecoration(
@@ -224,11 +234,14 @@ class _SettingScreenState extends State<SettingScreen> {
                   topRight: Radius.circular(30),
                 ),
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 24,
+                    horizontal: 20,
+                  ),
                   children: [
                     _buildSectionTitle("ACCOUNT"),
                     ...accountSettings.map((e) => _buildSettingTile(e)),
-                    
+
                     const SizedBox(height: 20),
                     _buildSectionTitle("APPEARANCE"),
                     ...appearanceSettings.map((e) => _buildSettingTile(e)),
@@ -242,10 +255,10 @@ class _SettingScreenState extends State<SettingScreen> {
                     ...otherSettings.map((e) => _buildSettingTile(e)),
 
                     const SizedBox(height: 30),
-                    
+
                     // Logout Button
                     _buildLogoutButton(),
-                    
+
                     const SizedBox(height: 20),
                     Center(
                       child: Text(
@@ -259,13 +272,15 @@ class _SettingScreenState extends State<SettingScreen> {
               ),
             ),
           ),
-          
+
           // Loading Overlay
           if (_isLoading)
             Container(
               color: Colors.black12,
-              child: const Center(child: CircularProgressIndicator(color: mainOrange)),
-            )
+              child: const Center(
+                child: CircularProgressIndicator(color: mainOrange),
+              ),
+            ),
         ],
       ),
     );
@@ -296,13 +311,14 @@ class _SettingScreenState extends State<SettingScreen> {
 
     return Container(
       // Bỏ margin bottom để các dòng gạch chân liền mạch hơn, hoặc giữ nhỏ nếu muốn thoáng
-      margin: const EdgeInsets.only(bottom: 0), 
+      margin: const EdgeInsets.only(bottom: 0),
       decoration: const BoxDecoration(
         color: Colors.transparent, // Không nền
         // Chỉ có border bottom màu đen (theo yêu cầu)
         border: Border(
           bottom: BorderSide(
-            color: Colors.black12, // Màu đen nhạt (hoặc Colors.black nếu muốn đen tuyền)
+            color: Colors
+                .black12, // Màu đen nhạt (hoặc Colors.black nếu muốn đen tuyền)
             width: 1.0,
           ),
         ),
@@ -312,14 +328,17 @@ class _SettingScreenState extends State<SettingScreen> {
         child: InkWell(
           onTap: () => _handleItemTap(item),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16), // Padding thoáng hơn
+            padding: const EdgeInsets.symmetric(
+              horizontal: 0,
+              vertical: 16,
+            ), // Padding thoáng hơn
             child: Row(
               children: [
                 // Icon (Không nền, không border)
                 Icon(item.icon, color: itemColor, size: 26),
-                
+
                 const SizedBox(width: 16),
-                
+
                 // Texts
                 Expanded(
                   child: Column(
@@ -346,7 +365,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Trailing Action
                 if (item.type == SettingType.toggle)
                   Switch.adaptive(

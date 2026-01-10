@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/data/models/status_data.dart';
+import 'package:flutter_social_media_app/routes/route_names.dart';
 import '../../data/models/live_card_data.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -77,9 +78,18 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
           ),
           const Spacer(),
-          const Icon(Icons.search_sharp, size: 28),
+
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, RouteNames.search),
+            child: const Icon(Icons.search_sharp, size: 28),
+          ),
           const SizedBox(width: 15),
-          const Icon(Icons.notifications_none, size: 28),
+          GestureDetector(
+            onTap: () => {
+              Navigator.pushNamed(context, RouteNames.notification),
+            },
+            child: Icon(Icons.notifications_none, size: 28),
+          ),
         ],
       ),
     );
