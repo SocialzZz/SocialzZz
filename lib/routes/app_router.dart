@@ -8,7 +8,8 @@ import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
 import '../representation/splash/splash_screen.dart';
 import '../representation/auth/login_screen.dart';
 import '../representation/auth/register_screen.dart';
-import '../representation/post/create_post_screen.dart';
+import '../representation/post/screens/create_post_screen.dart';
+import '../representation/post/screens/reaction_list_screen.dart';
 import '../representation/profile/profile_screen.dart';
 import '../representation/setting/setting_screen.dart';
 import 'route_names.dart';
@@ -36,6 +37,9 @@ class AppRouter {
 
       case RouteNames.post:
         return MaterialPageRoute(builder: (_) => const CreatePostScreen());
+
+      case RouteNames.reactionList:
+        return MaterialPageRoute(builder: (_) => const ReactionListScreen());
 
       case RouteNames.profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
