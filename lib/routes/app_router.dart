@@ -3,6 +3,7 @@ import 'package:flutter_social_media_app/representation/home/main_screen.dart';
 import 'package:flutter_social_media_app/representation/notification/notification_screen.dart';
 import 'package:flutter_social_media_app/representation/profile/editprofile_screen.dart';
 import 'package:flutter_social_media_app/representation/search/search_screen.dart';
+import 'package:flutter_social_media_app/representation/video/video_screen.dart';
 import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
 
 import '../representation/splash/splash_screen.dart';
@@ -30,6 +31,9 @@ class AppRouter {
 
       case RouteNames.home:
         return MaterialPageRoute(builder: (_) => const MainScreen());
+
+      case RouteNames.video:
+        return MaterialPageRoute(builder: (_) => const VideoScreen());
 
       case RouteNames.search:
         return MaterialPageRoute(builder: (_) => const SearchScreen());

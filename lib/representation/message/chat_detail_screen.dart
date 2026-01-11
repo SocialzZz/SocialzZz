@@ -223,7 +223,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: primaryColor.withOpacity(0.1),
+          color: primaryColor.withAlpha(25),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -304,7 +304,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -317,7 +317,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
+                color: primaryColor.withAlpha(25),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.add, color: primaryColor, size: 20),

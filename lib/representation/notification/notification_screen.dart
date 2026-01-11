@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/data/models/notification_item.dart';
 import 'package:flutter_social_media_app/data/services/notification_service.dart';
 
-
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
 
@@ -19,7 +18,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
   final Color _accent = const Color(0xFFFF6B35);
   final Color _textPrimary = const Color(0xFF212121);
   final Color _textSecondary = const Color(0xFF757575);
-  final Color _divider = const Color(0xFFE0E0E0);
 
   @override
   void initState() {
@@ -46,9 +44,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
       }
     }
   }
@@ -70,8 +68,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     // Optimistic update
     setState(() {
       _notifications.removeWhere((n) => n.id == notification.id);
-      _pendingRequestsCount = _pendingRequestsCount > 0 
-          ? _pendingRequestsCount - 1 
+      _pendingRequestsCount = _pendingRequestsCount > 0
+          ? _pendingRequestsCount - 1
           : 0;
     });
 
@@ -84,11 +82,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
         _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         _pendingRequestsCount++;
       });
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
       }
     }
   }
@@ -97,8 +95,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     // Optimistic update
     setState(() {
       _notifications.removeWhere((n) => n.id == notification.id);
-      _pendingRequestsCount = _pendingRequestsCount > 0 
-          ? _pendingRequestsCount - 1 
+      _pendingRequestsCount = _pendingRequestsCount > 0
+          ? _pendingRequestsCount - 1
           : 0;
     });
 
@@ -111,11 +109,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
         _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         _pendingRequestsCount++;
       });
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
       }
     }
   }
@@ -132,7 +130,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6B35)),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFFFF6B35),
+                        ),
                       ),
                     )
                   : _buildNotificationList(),
@@ -208,7 +208,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       itemBuilder: (context, index) {
         final dateLabel = groupedNotifications.keys.elementAt(index);
         final notifications = groupedNotifications[dateLabel]!;
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -224,7 +224,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               ),
             ),
-            ...notifications.map((notification) => _buildNotificationItem(notification)),
+            ...notifications.map(
+              (notification) => _buildNotificationItem(notification),
+            ),
           ],
         );
       },
@@ -257,10 +259,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 const SizedBox(height: 2),
                 Text(
                   notification.actionText,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: _textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 14, color: _textSecondary),
                 ),
               ],
             ),
@@ -268,7 +267,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
           if (notification.type == NotificationType.request) ...[
             const SizedBox(width: 8),
             _buildRequestButtons(notification),
-          ] else if (notification.postImageUrl != null || notification.postId != null) ...[
+          ] else if (notification.postImageUrl != null ||
+              notification.postId != null) ...[
             const SizedBox(width: 8),
             _PostPreviewPlaceholder(accent: _accent),
           ],
@@ -324,10 +324,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 }
 
 class _AvatarPlaceholder extends StatelessWidget {
-  const _AvatarPlaceholder({
-    required this.accent,
-    this.imageUrl,
-  });
+  const _AvatarPlaceholder({required this.accent, this.imageUrl});
 
   final Color accent;
   final String? imageUrl;
@@ -339,20 +336,14 @@ class _AvatarPlaceholder extends StatelessWidget {
       backgroundColor: const Color(0xFFF3F4F6),
       backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
       child: imageUrl == null
-          ? Icon(
-              Icons.landscape,
-              size: 20,
-              color: accent.withOpacity(0.6),
-            )
+          ? Icon(Icons.landscape, size: 20, color: accent.withAlpha(153))
           : null,
     );
   }
 }
 
 class _PostPreviewPlaceholder extends StatelessWidget {
-  const _PostPreviewPlaceholder({
-    required this.accent,
-  });
+  const _PostPreviewPlaceholder({required this.accent});
 
   final Color accent;
 
@@ -365,12 +356,7 @@ class _PostPreviewPlaceholder extends StatelessWidget {
         color: const Color(0xFFF3F4F6),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Icon(
-        Icons.landscape,
-        size: 24,
-        color: accent.withOpacity(0.6),
-      ),
+      child: Icon(Icons.landscape, size: 24, color: accent.withAlpha(153)),
     );
   }
 }
-

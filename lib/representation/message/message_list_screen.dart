@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'chat_detail_screen.dart';
+
+import 'message_header.dart';
+import 'online_user_list.dart';
+import 'message_item.dart';
 
 class MessageListScreen extends StatefulWidget {
   const MessageListScreen({super.key});
@@ -11,10 +14,15 @@ class MessageListScreen extends StatefulWidget {
 class _MessageListScreenState extends State<MessageListScreen> {
   final Color primaryColor = const Color(0xFFF9622E);
 
+  // DỮ LIỆU GIẢ LẬP
   final List<Map<String, String>> _onlineUsers = [
     {'name': 'Jenny', 'avatar': 'https://i.pravatar.cc/150?img=1'},
     {'name': 'Leslie', 'avatar': 'https://i.pravatar.cc/150?img=2'},
-    {'name': 'Bessie', 'avatar': 'https://i.pravatar.cc/150?img=3'},
+    {
+      'name': 'Bessie',
+      'avatar': 'https://i.pravatar.cc/150?img=3',
+      /* ... dữ liệu khác */
+    },
     {'name': 'Jerom', 'avatar': 'https://i.pravatar.cc/150?img=4'},
     {'name': 'Jerom', 'avatar': 'https://i.pravatar.cc/150?img=5'},
   ];
@@ -62,175 +70,56 @@ class _MessageListScreenState extends State<MessageListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildOnlineUsers(),
-            const SizedBox(height: 16),
-            Expanded(child: _buildMessageListContainer()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Column(
         children: [
-          Container(
-            width: 35,
-            height: 35,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-          ),
-          const Text(
-            'Chat',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Container(
-            width: 35,
-            height: 35,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.search, color: Colors.black, size: 20),
-          ),
-        ],
-      ),
-    );
-  }
+          // 1. Header (Dùng widget mới)
+          const SafeArea(bottom: false, child: MessageHeader()),
 
-  Widget _buildOnlineUsers() {
-    return SizedBox(
-      height: 90,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: _onlineUsers.length,
-        itemBuilder: (context, index) {
-          final user = _onlineUsers[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundImage: NetworkImage(user['avatar']!),
-                    ),
-                    Positioned(
-                      bottom: 2,
-                      right: 2,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: primaryColor, width: 2),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  user['name']!,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+          // 2. Danh sách người dùng
+          OnlineUserList(primaryColor: primaryColor, onlineUsers: _onlineUsers),
+
+          const SizedBox(height: 20),
+
+          // 3. Danh sách tin nhắn chính
+          Expanded(child: _buildMessageListContainer()),
+        ],
       ),
     );
   }
 
   Widget _buildMessageListContainer() {
     return Container(
+      width: double.infinity,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.only(top: 20),
+        child: ListView.separated(
+          padding: const EdgeInsets.only(top: 20, bottom: 20),
           itemCount: _messages.length,
-          itemBuilder: (context, index) => _buildMessageItem(_messages[index]),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessageItem(Map<String, dynamic> message) {
-    return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChatDetailScreen(
-            name: message['name'],
-            avatar: message['avatar'],
+          separatorBuilder: (context, index) => const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: Divider(height: 1, color: Color(0xFFF1F1F1)),
           ),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundImage: NetworkImage(message['avatar']),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message['name'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    message['lastMessage'],
-                    style: TextStyle(color: Colors.grey[500], fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              message['time'],
-              style: TextStyle(color: Colors.grey[400], fontSize: 12),
-            ),
-          ],
+          itemBuilder: (context, index) => MessageItem(
+            message: _messages[index],
+            primaryColor: primaryColor,
+          ),
         ),
       ),
     );

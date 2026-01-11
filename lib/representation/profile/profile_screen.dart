@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
+import 'package:flutter_social_media_app/widgets/circle_icon_btn.dart';
 
 // MODEL DỮ LIỆU
 class PostItem {
@@ -21,7 +22,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   static const Color mainOrange = Color(0xFFF9622E);
   static const Color greyText = Color(0xFF797979);
-  static const Color borderColor = Color(0xFFE2E5E9);
 
   late TabController _tabController;
 
@@ -173,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             border: Border.all(color: Colors.white, width: 4),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withAlpha(12),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -287,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   borderRadius: BorderRadius.circular(25),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: const Color(0xFFF7E7D9).withOpacity(0.5),
+                backgroundColor: const Color(0xFFF7E7D9).withAlpha(127),
               ),
               child: const Text(
                 "Message",
@@ -307,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildCircleIconBtn(Icons.arrow_back),
+        SizedBox(width: 30),
         const Text(
           "Profile",
           style: TextStyle(
@@ -317,26 +317,13 @@ class _ProfileScreenState extends State<ProfileScreen>
             color: Colors.white,
           ),
         ),
-        GestureDetector(
-          onTap: () {
+        CircleIconButton(
+          icon: Icons.settings,
+          onPressed: () {
             Navigator.pushNamed(context, RouteNames.setting);
           },
-          child: _buildCircleIconBtn(Icons.settings),
         ),
       ],
-    );
-  }
-
-  Widget _buildCircleIconBtn(IconData icon) {
-    return Container(
-      width: 35,
-      height: 35,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: borderColor),
-      ),
-      child: Icon(icon, size: 16, color: const Color(0xFF1D1B20)),
     );
   }
 
