@@ -5,6 +5,7 @@ import 'package:flutter_social_media_app/representation/profile/editprofile_scre
 import 'package:flutter_social_media_app/representation/search/search_screen.dart';
 import 'package:flutter_social_media_app/representation/video/video_screen.dart';
 import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
+import 'package:flutter_social_media_app/representation/comment/comment_screen.dart';
 
 import '../representation/splash/splash_screen.dart';
 import '../representation/auth/login_screen.dart';
@@ -52,6 +53,9 @@ class AppRouter {
 
       case RouteNames.setting:
         return MaterialPageRoute(builder: (_) => const SettingScreen());
+
+      case RouteNames.comment:
+        return MaterialPageRoute(builder: (_) => const CommentScreen());
 
       default:
         return MaterialPageRoute(
