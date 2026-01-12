@@ -242,9 +242,15 @@ class _ProfileScreenState extends State<ProfileScreen>
         children: [
           _buildStatItem("123", "Post"),
           _buildVerticalLine(),
-          _buildStatItem("13.2K", "Followers"),
+          GestureDetector(
+            child: _buildStatItem("13.2K", "Followers"),
+            onTap: () => {Navigator.pushNamed(context, RouteNames.followers)},
+          ),
           _buildVerticalLine(),
-          _buildStatItem("123K", "Following"),
+          GestureDetector(
+            child: _buildStatItem("123K", "Following"),
+            onTap: () => {Navigator.pushNamed(context, RouteNames.followers)},
+          ),
           _buildVerticalLine(),
           _buildStatItem("123M", "Likes"),
         ],

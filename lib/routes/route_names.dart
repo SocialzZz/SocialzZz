@@ -8,6 +8,8 @@ class RouteNames {
   static const post = '/create-post';
   static const reactionList = '/reaction-list';
   static const profile = '/profile';
+  static const followers = '/followers';
+  static const following = '/following';
   static const editProfile = '/edit-profile';
   static const search = '/search';
   static const setting = '/setting';

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_media_app/representation/follow/followers_screen.dart';
+import 'package:flutter_social_media_app/representation/follow/following_screen.dart';
 import 'package:flutter_social_media_app/representation/home/main_screen.dart';
 import 'package:flutter_social_media_app/representation/notification/notification_screen.dart';
 import 'package:flutter_social_media_app/representation/profile/editprofile_screen.dart';
@@ -48,6 +50,12 @@ class AppRouter {
 
       case RouteNames.profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
+
+      case RouteNames.followers:
+        return MaterialPageRoute(builder: (_) => const FollowersScreen());
+
+      case RouteNames.following:
+        return MaterialPageRoute(builder: (_) => const FollowingScreen());
 
       case RouteNames.editProfile:
         return MaterialPageRoute(builder: (_) => const EditprofileScreen());

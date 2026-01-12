@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'chat_detail_screen.dart';
 
 class MessageItem extends StatelessWidget {
   final Map<String, dynamic> message;
@@ -14,7 +15,15 @@ class MessageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Điều hướng đến trang chat chi tiết
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatDetailScreen(
+              name: message['name'],
+              avatar: message['avatar'],
+            ),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
