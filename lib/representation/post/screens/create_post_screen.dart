@@ -33,23 +33,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: mainOrange,
-      body: Stack(
+      body: Column(
         children: [
           // Header
-          Positioned(
-            top: 0, left: 0, right: 0,
-            child: Container(
-              color: mainOrange,
-              child: SafeArea(
-                bottom: false,
-                child: Container(
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+          Container(
+            color: mainOrange,
+            child: SafeArea(
+              bottom: false,
+              child: Container(
+                height: 80,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Container(
-                      width: 32, height: 32,
+                      width: 36, 
+                      height: 36,
                       decoration: BoxDecoration(
                         color: Colors.white, 
                         shape: BoxShape.circle, 
@@ -57,7 +56,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero, 
-                        iconSize: 18,
+                        iconSize: 20,
                         icon: const Icon(Icons.arrow_back, color: Color(0xFF1D1B20)),
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
@@ -79,7 +78,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            minimumSize: const Size(60, 36),
                           ),
                           child: _controller.isUploading 
                             ? const SizedBox(
@@ -99,18 +99,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         );
                       },
                     ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
           ),
 
           // Main Content
-          Positioned(
-            top: 0, left: 0, right: 0, bottom: 0,
+          Expanded(
             child: Container(
-              margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 60),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -132,7 +129,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 80),
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 120),
                       child: ListenableBuilder(
                         listenable: _controller,
                         builder: (context, _) {
@@ -140,7 +137,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               PostHeader(controller: _controller),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 16),
                               PostInput(controller: _controller),
                               const SizedBox(height: 16),
                               if (_controller.taggedFriends.isNotEmpty) ...[

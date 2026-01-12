@@ -41,7 +41,7 @@ class FeelingSheet {
                           ),
                           const SizedBox(height: 12),
                           Container(
-                            height: 40,
+                            height: 35,
                             decoration: BoxDecoration(
                               color: Colors.grey[100], 
                               borderRadius: BorderRadius.circular(8)

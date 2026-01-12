@@ -11,11 +11,11 @@ class PostInput extends StatelessWidget {
     return TextField(
       controller: controller.contentController,
       maxLines: null,
-      minLines: 6,
-      style: const TextStyle(fontSize: 18, color: Colors.black87),
+      minLines: 4,
+      style: const TextStyle(fontSize: 16, color: Colors.black87),
       decoration: const InputDecoration(
         hintText: 'Bạn đang nghĩ gì thế?',
-        hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+        hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
         border: InputBorder.none,
       ),
     );
