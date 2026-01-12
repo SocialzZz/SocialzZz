@@ -223,7 +223,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _buildInteractionItem(Icons.favorite_border, data.likes),
                 const SizedBox(width: 15),
-                _buildInteractionItem(Icons.chat_outlined, data.comments),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, RouteNames.comment),
+                  child: _buildInteractionItem(Icons.chat_outlined, data.comments),
+                ),
                 const SizedBox(width: 15),
                 _buildInteractionItem(Icons.reply_rounded, data.shares),
                 const Spacer(),

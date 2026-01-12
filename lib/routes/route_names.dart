@@ -11,4 +11,5 @@ class RouteNames {
   static const search = '/search';
   static const setting = '/setting';
   static const notification = '/notification';
+  static const comment = '/comment';
 }
