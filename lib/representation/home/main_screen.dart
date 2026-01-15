@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/home/home_screen.dart';
-import 'package:flutter_social_media_app/representation/post/create_post_screen.dart';
+import 'package:flutter_social_media_app/representation/post/screens/create_post_screen.dart';
 import 'package:flutter_social_media_app/representation/profile/profile_screen.dart';
 import 'package:flutter_social_media_app/representation/video/video_screen.dart';
 import '../../widgets/app_bottom_navbar.dart';
