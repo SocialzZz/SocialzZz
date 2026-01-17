@@ -13,7 +13,7 @@ class OnlineUserList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 105,
+      height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -30,7 +30,6 @@ class OnlineUserList extends StatelessWidget {
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        // Fix: Dùng withAlpha(127) thay vì withOpacity(0.5)
                         border: Border.all(
                           color: Colors.white.withAlpha(127),
                           width: 2,
@@ -56,12 +55,12 @@ class OnlineUserList extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   user['name']!,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 13,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

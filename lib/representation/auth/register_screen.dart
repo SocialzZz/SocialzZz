@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -85,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: _handleRegister,
+                    onPressed: _handleSignUp,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF6B35),
                       shape: RoundedRectangleBorder(
@@ -251,22 +252,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void _handleRegister() {
-    final name = _nameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
-      return;
-    }
-    debugPrint('Register: $name, $email');
-  }
-
   void _handleGoogleSignUp() {
     debugPrint('Google sign up');
+  }
+
+  Future<void> _handleSignUp() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+    final name = _nameController.text.trim();
+
+    // 1. Kiểm tra nhập liệu cơ bản
+    if (email.isEmpty || password.isEmpty || name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vui lòng nhập đầy đủ thông tin")),
+      );
+      return;
+    }
+
+    // 2. Kiểm tra mật khẩu khớp nhau
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Mật khẩu xác nhận không khớp")),
+      );
+      return;
+    }
+
+    try {
+      // 3. Gọi hàm đăng ký từ AuthService (đã viết ở bước trước)
+      await signUpWithEmail(email, password, name);
+
+      // 4. (Tùy chọn) Lưu tên người dùng vào bảng profiles của bạn ở đây nếu cần
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              "Đăng ký thành công!",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            backgroundColor: Color(0xFFFF6B35),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom:
+                  MediaQuery.of(context).size.height -
+                  150, // Đẩy nó lên gần đỉnh đầu
+              left: 20,
+              right: 20,
+            ),
+            duration: const Duration(seconds: 2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+
+        Navigator.pushNamed(context, RouteNames.login);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Lỗi đăng ký: $e")));
+      }
+    }
   }
 }

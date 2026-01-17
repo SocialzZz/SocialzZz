@@ -41,7 +41,12 @@ class Welcome extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey, // Làm mờ mô tả để nổi bật tiêu đề
+                  color: Color.fromARGB(
+                    255,
+                    101,
+                    100,
+                    100,
+                  ), // Làm mờ mô tả để nổi bật tiêu đề
                   height: 1.5, // Khoảng cách dòng cho dễ đọc
                 ),
               ),

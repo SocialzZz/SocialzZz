@@ -63,8 +63,8 @@ class _SplashScreenState extends State<SplashScreen>
           opacity: _opacityAnimation,
           child: const Image(
             image: AssetImage('assets/images/SocialzZz-Logo.jpg'),
-            width: 120,
-            height: 120,
+            width: 150,
+            height: 150,
           ),
         ),
       ),

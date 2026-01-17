@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_media_app/representation/home/main_screen.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
 import 'register_screen.dart';
+import 'auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -86,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     child: const Text(
-                      'Log in',
+                      'Sign in',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -274,7 +276,24 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushNamed(context, RouteNames.home);
   }
 
-  void _handleGoogleSignIn() {
-    debugPrint('Google sign in');
+  // Thêm async vào ngay sau tên hàm
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      // Gọi hàm từ auth_service.dart
+      await signInWithGoogle();
+
+      print("Đăng nhập thành công!");
+
+      // Nếu bạn muốn chuyển sang màn hình chính sau khi đăng nhập:
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      }
+    } catch (e) {
+      print("Lỗi đăng nhập rồi: $e");
+      // Bạn có thể hiện một cái thông báo lỗi (SnackBar) ở đây
+    }
   }
 }
