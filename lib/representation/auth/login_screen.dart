@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/home/main_screen.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
 import 'register_screen.dart';
-import 'auth_service.dart';
+import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,9 +12,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthService _authService = AuthService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -268,22 +270,41 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _handleLogin() {
-    final email = _emailController.text;
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
-    debugPrint('Login with: $email');
 
-    Navigator.pushNamed(context, RouteNames.home);
+    // Validate cơ bản
+    if (email.isEmpty || password.isEmpty) {
+      _showSnackBar("Vui lòng điền đầy đủ thông tin", Colors.red);
+      return;
+    }
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.login(email, password);
+
+      if (mounted) {
+        _showSnackBar("Đăng nhập thành công!", const Color(0xFFFF6B35));
+
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+            );
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) _showSnackBar("Lỗi: $e", Colors.redAccent);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
-  // Thêm async vào ngay sau tên hàm
   Future<void> _handleGoogleSignIn() async {
     try {
-      // Gọi hàm từ auth_service.dart
-      await signInWithGoogle();
-
-      print("Đăng nhập thành công!");
-
       // Nếu bạn muốn chuyển sang màn hình chính sau khi đăng nhập:
       if (mounted) {
         Navigator.pushReplacement(
@@ -295,5 +316,15 @@ class _LoginScreenState extends State<LoginScreen> {
       print("Lỗi đăng nhập rồi: $e");
       // Bạn có thể hiện một cái thông báo lỗi (SnackBar) ở đây
     }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, textAlign: TextAlign.center),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 }

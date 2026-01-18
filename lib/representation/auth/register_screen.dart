@@ -10,12 +10,14 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final AuthService _authService = AuthService();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -257,68 +259,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleSignUp() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
     final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-    // 1. Kiểm tra nhập liệu cơ bản
-    if (email.isEmpty || password.isEmpty || name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vui lòng nhập đầy đủ thông tin")),
-      );
+    // Validate cơ bản
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      _showSnackBar("Vui lòng điền đầy đủ thông tin", Colors.red);
       return;
     }
-
-    // 2. Kiểm tra mật khẩu khớp nhau
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Mật khẩu xác nhận không khớp")),
-      );
+      _showSnackBar("Mật khẩu xác nhận không khớp", Colors.red);
       return;
     }
+
+    setState(() => _isLoading = true);
 
     try {
-      // 3. Gọi hàm đăng ký từ AuthService (đã viết ở bước trước)
-      await signUpWithEmail(email, password, name);
-
-      // 4. (Tùy chọn) Lưu tên người dùng vào bảng profiles của bạn ở đây nếu cần
+      await _authService.register(name, email, password);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              "Đăng ký thành công!",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            backgroundColor: Color(0xFFFF6B35),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(
-              bottom:
-                  MediaQuery.of(context).size.height -
-                  150, // Đẩy nó lên gần đỉnh đầu
-              left: 20,
-              right: 20,
-            ),
-            duration: const Duration(seconds: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+        _showSnackBar("Đăng ký thành công!", const Color(0xFFFF6B35));
 
-        Navigator.pushNamed(context, RouteNames.login);
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) Navigator.pushNamed(context, RouteNames.login);
+        });
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Lỗi đăng ký: $e")));
-      }
+      if (mounted) _showSnackBar("Lỗi: $e", Colors.redAccent);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, textAlign: TextAlign.center),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 }

@@ -1,54 +1,36 @@
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-Future<AuthResponse> signInWithGoogle() async {
-  // 1. Cấu hình GoogleSignIn với thông tin thật từ GCP
-  final googleSignIn = GoogleSignIn(
-    // Lấy từ Client ID loại iOS trên GCP
-    clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID'],
+class AuthService {
+  final String baseUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000';
+  final Dio _dio = Dio();
 
-    // Lấy từ Client ID loại Web trên GCP (Dùng để xác thực với Supabase)
-    serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
-  );
-
-  final googleUser = await googleSignIn.signIn();
-
-  if (googleUser == null) {
-    throw 'Người dùng đã hủy đăng nhập.';
+  // 1. Hàm Đăng Ký
+  Future<Response?> register(String name, String email, String password) async {
+    try {
+      final response = await _dio.post(
+        '$baseUrl/auth/register',
+        data: {'name': name, 'email': email, 'password': password},
+      );
+      return response;
+    } on DioException catch (e) {
+      // Trả về lỗi từ NestJS (ví dụ: "Email đã tồn tại")
+      throw e.response?.data['message'] ?? 'Đăng ký thất bại';
+    }
   }
 
-  final googleAuth = await googleUser.authentication;
-  final accessToken = googleAuth.accessToken;
-  final idToken = googleAuth.idToken;
+  // 2. Hàm Đăng Nhập
+  Future<String?> login(String email, String password) async {
+    try {
+      final response = await _dio.post(
+        '$baseUrl/auth/login',
+        data: {'email': email, 'password': password},
+      );
 
-  if (idToken == null) {
-    throw 'Không tìm thấy ID Token.';
+      // NestJS trả về { access_token: "..." }
+      return response.data['access_token'];
+    } on DioException catch (e) {
+      throw e.response?.data['message'] ?? 'Sai tài khoản hoặc mật khẩu';
+    }
   }
-
-  // 2. Đăng nhập vào Supabase bằng Token lấy từ Google
-  return await Supabase.instance.client.auth.signInWithIdToken(
-    provider: OAuthProvider.google,
-    idToken: idToken,
-    accessToken: accessToken,
-  );
-}
-
-Future<AuthResponse> signUpWithEmail(
-  String email,
-  String password,
-  String name,
-) async {
-  return await Supabase.instance.client.auth.signUp(
-    email: email,
-    password: password,
-    data: {'full_name': name},
-  );
-}
-
-Future<AuthResponse> signInWithEmail(String email, String password) async {
-  return await Supabase.instance.client.auth.signInWithPassword(
-    email: email,
-    password: password,
-  );
 }
