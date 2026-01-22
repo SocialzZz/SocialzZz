@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../data/services/message_service.dart';
+import '../../data/models/message.dart';
 
 class ChatDetailScreen extends StatefulWidget {
+  final String partnerId;
   final String name;
   final String avatar;
 
-  const ChatDetailScreen({super.key, required this.name, required this.avatar});
+  const ChatDetailScreen({
+    super.key,
+    required this.partnerId,
+    required this.name,
+    required this.avatar,
+  });
 
   @override
   State<ChatDetailScreen> createState() => _ChatDetailScreenState();
@@ -13,28 +22,102 @@ class ChatDetailScreen extends StatefulWidget {
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
   final Color primaryColor = const Color(0xFFF9622E);
   final TextEditingController _messageController = TextEditingController();
+  final MessageService _messageService = MessageService();
+  final ScrollController _scrollController = ScrollController();
 
-  final List<Map<String, dynamic>> _messages = [
-    {
-      'text':
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-      'isMe': false,
-      'time': '08:04 pm',
-      'type': 'text',
-    },
-    {
-      'text':
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-      'isMe': true,
-      'time': '08:04 pm',
-      'type': 'text',
-    },
-    {'duration': '0:13', 'isMe': true, 'time': '08:04 pm', 'type': 'voice'},
-  ];
+  List<Message> _messages = [];
+  bool _isLoading = true;
+  String? _currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+    _setupRealtimeUpdates();
+    _markConversationAsRead();
+  }
+
+  Future<void> _loadMessages() async {
+    try {
+      final messages = await _messageService.getConversation(widget.partnerId);
+      setState(() {
+        _messages = messages;
+        _isLoading = false;
+      });
+      _scrollToBottom();
+    } catch (e) {
+      print('Error loading messages: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _setupRealtimeUpdates() {
+    _messageService.onNewMessage((message) {
+      if (message.senderId == widget.partnerId ||
+          message.receiverId == widget.partnerId) {
+        setState(() {
+          _messages.add(message);
+        });
+        _scrollToBottom();
+        if (message.senderId == widget.partnerId) {
+          _messageService.markAsRead(message.id);
+        }
+      }
+    });
+  }
+
+  Future<void> _markConversationAsRead() async {
+    try {
+      await _messageService.markConversationAsRead(widget.partnerId);
+    } catch (e) {
+      print('Error marking as read: $e');
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  Future<void> _sendMessage() async {
+    final content = _messageController.text.trim();
+    if (content.isEmpty) return;
+
+    _messageController.clear();
+
+    try {
+      final message = await _messageService.sendMessage(
+        widget.partnerId,
+        content,
+      );
+      setState(() {
+        _messages.add(message);
+      });
+      _scrollToBottom();
+      
+      // Notify parent to reload conversations
+      if (mounted) {
+        // This will trigger reload when user goes back
+      }
+    } catch (e) {
+      print('Error sending message: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send message')),
+      );
+    }
+  }
 
   @override
   void dispose() {
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -77,7 +160,12 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           const SizedBox(width: 12),
           CircleAvatar(
             radius: 20,
-            backgroundImage: NetworkImage(widget.avatar),
+            backgroundColor: Colors.grey[200],
+            backgroundImage:
+                widget.avatar.isNotEmpty ? NetworkImage(widget.avatar) : null,
+            child: widget.avatar.isEmpty
+                ? Text(widget.name.substring(0, 1).toUpperCase())
+                : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -125,13 +213,25 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       child: Column(
         children: [
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildDateDivider('TODAY'),
-                ..._messages.map((msg) => _buildMessageItem(msg)),
-              ],
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _messages.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No messages yet. Start the conversation!',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          final message = _messages[index];
+                          final isMe = message.senderId != widget.partnerId;
+                          return _buildMessageItem(message, isMe);
+                        },
+                      ),
           ),
           _buildInputBar(),
         ],
@@ -139,158 +239,83 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
-  Widget _buildDateDivider(String date) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Center(
-        child: Text(
-          date,
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessageItem(Map<String, dynamic> message) {
-    final bool isMe = message['isMe'];
+  Widget _buildMessageItem(Message message, bool isMe) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
-        crossAxisAlignment: isMe
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          if (!isMe) _buildSenderInfo(),
+          if (!isMe) _buildSenderInfo(message),
           const SizedBox(height: 4),
-          _buildMessageContent(message),
+          _buildMessageContent(message, isMe),
           const SizedBox(height: 4),
-          _buildTimeAndAvatar(message, isMe),
+          _buildTimeAndStatus(message, isMe),
         ],
       ),
     );
   }
 
-  Widget _buildSenderInfo() {
+  Widget _buildSenderInfo(Message message) {
     return Row(
       children: [
-        CircleAvatar(radius: 12, backgroundImage: NetworkImage(widget.avatar)),
+        CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.grey[200],
+          backgroundImage: message.sender?.avatarUrl != null
+              ? NetworkImage(message.sender!.avatarUrl!)
+              : null,
+          child: message.sender?.avatarUrl == null
+              ? Text(
+                  message.sender?.name?.substring(0, 1).toUpperCase() ?? '?',
+                  style: const TextStyle(fontSize: 10),
+                )
+              : null,
+        ),
         const SizedBox(width: 8),
         Text(
-          widget.name,
+          message.sender?.name ?? 'Unknown',
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
         ),
       ],
     );
   }
 
-  Widget _buildMessageContent(Map<String, dynamic> message) {
-    final bool isMe = message['isMe'];
-    final String type = message['type'];
-
-    if (type == 'text') {
-      return Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.7,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: isMe ? primaryColor : Colors.grey[100],
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          message['text'],
-          style: TextStyle(
-            color: isMe ? Colors.white : Colors.black87,
-            fontSize: 14,
-          ),
-        ),
-      );
-    } else if (type == 'image') {
-      return ClipRRect(
+  Widget _buildMessageContent(Message message, bool isMe) {
+    return Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.7,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isMe ? primaryColor : Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(
-          message['image'],
-          width: 180,
-          height: 220,
-          fit: BoxFit.cover,
+      ),
+      child: Text(
+        message.content,
+        style: TextStyle(
+          color: isMe ? Colors.white : Colors.black87,
+          fontSize: 14,
         ),
-      );
-    } else if (type == 'voice') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: primaryColor.withAlpha(25),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: primaryColor,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.play_arrow,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Row(
-              children: List.generate(
-                20,
-                (i) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 1),
-                  width: 3,
-                  height: (i % 3 + 1) * 8.0,
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '• ${message['duration']}',
-              style: TextStyle(
-                color: primaryColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return const SizedBox();
+      ),
+    );
   }
 
-  Widget _buildTimeAndAvatar(Map<String, dynamic> message, bool isMe) {
+  Widget _buildTimeAndStatus(Message message, bool isMe) {
+    final timeStr = DateFormat('hh:mm a').format(message.createdAt);
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Text(
-          message['time'],
+          timeStr,
           style: TextStyle(color: Colors.grey[400], fontSize: 11),
         ),
         if (isMe) ...[
-          const SizedBox(width: 8),
-          const Text(
-            'Nguyễn Văn A',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-          ),
           const SizedBox(width: 4),
-          const CircleAvatar(
-            radius: 10,
-            backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=25'),
+          Icon(
+            message.isRead ? Icons.done_all : Icons.done,
+            size: 14,
+            color: message.isRead ? Colors.blue : Colors.grey[400],
           ),
         ],
       ],
@@ -331,16 +356,20 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                   hintStyle: TextStyle(color: Colors.grey[400]),
                   border: InputBorder.none,
                 ),
+                onSubmitted: (_) => _sendMessage(),
               ),
             ),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: primaryColor,
-                shape: BoxShape.circle,
+            GestureDetector(
+              onTap: _sendMessage,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.send, color: Colors.white, size: 20),
               ),
-              child: const Icon(Icons.mic, color: Colors.white, size: 20),
             ),
           ],
         ),

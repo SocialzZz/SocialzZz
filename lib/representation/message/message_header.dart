@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/widgets/circle_icon_btn.dart';
+import 'select_user_screen.dart';
 
 class MessageHeader extends StatelessWidget {
   const MessageHeader({super.key});
@@ -11,7 +12,17 @@ class MessageHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox(width: 30), // Dùng để căn giữa tiêu đề
+          CircleIconButton(
+            icon: Icons.add,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SelectUserScreen(),
+                ),
+              );
+            },
+          ),
           const Text(
             'Messages',
             style: TextStyle(
