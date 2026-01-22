@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
+import '../../data/services/message_service.dart';
+import '../../data/services/token_manager.dart';
+import '../../data/models/message.dart';
 import 'message_header.dart';
-import 'online_user_list.dart';
 import 'message_item.dart';
+import 'select_user_screen.dart';
 
 class MessageListScreen extends StatefulWidget {
   const MessageListScreen({super.key});
@@ -13,58 +15,46 @@ class MessageListScreen extends StatefulWidget {
 
 class _MessageListScreenState extends State<MessageListScreen> {
   final Color primaryColor = const Color(0xFFF9622E);
+  final MessageService _messageService = MessageService();
+  final TokenManager _tokenManager = TokenManager();
+  List<Conversation> _conversations = [];
+  bool _isLoading = true;
 
-  // DỮ LIỆU GIẢ LẬP
-  final List<Map<String, String>> _onlineUsers = [
-    {'name': 'Jenny', 'avatar': 'https://i.pravatar.cc/150?img=1'},
-    {'name': 'Leslie', 'avatar': 'https://i.pravatar.cc/150?img=2'},
-    {
-      'name': 'Bessie',
-      'avatar': 'https://i.pravatar.cc/150?img=3',
-      /* ... dữ liệu khác */
-    },
-    {'name': 'Jerom', 'avatar': 'https://i.pravatar.cc/150?img=4'},
-    {'name': 'Jerom', 'avatar': 'https://i.pravatar.cc/150?img=5'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadConversations();
+    _setupRealtimeUpdates();
+  }
 
-  final List<Map<String, dynamic>> _messages = [
-    {
-      'name': 'Carla Schoen',
-      'avatar': 'https://i.pravatar.cc/150?img=10',
-      'lastMessage': 'How Are You?',
-      'time': '09:34 PM',
-    },
-    {
-      'name': 'Sheila Lemke',
-      'avatar': 'https://i.pravatar.cc/150?img=11',
-      'lastMessage': 'Thanks',
-      'time': '09:34 PM',
-    },
-    {
-      'name': 'Deanna Botsford',
-      'avatar': 'https://i.pravatar.cc/150?img=12',
-      'lastMessage': 'Welcome!',
-      'time': '09:34 PM',
-    },
-    {
-      'name': 'Katie Bergnaum',
-      'avatar': 'https://i.pravatar.cc/150?img=13',
-      'lastMessage': 'Good Morning!',
-      'time': '09:34 PM',
-    },
-    {
-      'name': 'Armando Ferry',
-      'avatar': 'https://i.pravatar.cc/150?img=14',
-      'lastMessage': 'Good Morning!',
-      'time': '09:34 PM',
-    },
-    {
-      'name': 'Annette Fritsch',
-      'avatar': 'https://i.pravatar.cc/150?img=15',
-      'lastMessage': 'Thanks!',
-      'time': '09:34 PM',
-    },
-  ];
+  Future<void> _loadConversations() async {
+    try {
+      final conversations = await _messageService.getChatList();
+      setState(() {
+        _conversations = conversations;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading conversations: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _setupRealtimeUpdates() {
+    final userId = _tokenManager.userId;
+    if (userId != null) {
+      _messageService.connectSocket(userId);
+      _messageService.onNewMessage((message) {
+        _loadConversations(); // Reload conversations when new message arrives
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _messageService.disconnectSocket();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,15 +62,8 @@ class _MessageListScreenState extends State<MessageListScreen> {
       backgroundColor: primaryColor,
       body: Column(
         children: [
-          // 1. Header (Dùng widget mới)
           const SafeArea(bottom: false, child: MessageHeader()),
-
-          // 2. Danh sách người dùng
-          OnlineUserList(primaryColor: primaryColor, onlineUsers: _onlineUsers),
-
           const SizedBox(height: 20),
-
-          // 3. Danh sách tin nhắn chính
           Expanded(child: _buildMessageListContainer()),
         ],
       ),
@@ -109,18 +92,33 @@ class _MessageListScreenState extends State<MessageListScreen> {
           topLeft: Radius.circular(40),
           topRight: Radius.circular(40),
         ),
-        child: ListView.separated(
-          padding: const EdgeInsets.only(top: 20, bottom: 20),
-          itemCount: _messages.length,
-          separatorBuilder: (context, index) => const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: Divider(height: 1, color: Color(0xFFF1F1F1)),
-          ),
-          itemBuilder: (context, index) => MessageItem(
-            message: _messages[index],
-            primaryColor: primaryColor,
-          ),
-        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _conversations.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No messages yet',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadConversations,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.only(top: 20, bottom: 20),
+                      itemCount: _conversations.length,
+                      separatorBuilder: (context, index) => const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 25),
+                        child: Divider(height: 1, color: Color(0xFFF1F1F1)),
+                      ),
+                      itemBuilder: (context, index) {
+                        final conversation = _conversations[index];
+                        return MessageItem(
+                          conversation: conversation,
+                          primaryColor: primaryColor,
+                        );
+                      },
+                    ),
+                  ),
       ),
     );
   }

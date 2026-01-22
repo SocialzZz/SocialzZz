@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../data/models/message.dart';
 import 'chat_detail_screen.dart';
 
 class MessageItem extends StatelessWidget {
-  final Map<String, dynamic> message;
+  final Conversation conversation;
   final Color primaryColor;
 
   const MessageItem({
     super.key,
-    required this.message,
+    required this.conversation,
     required this.primaryColor,
   });
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays == 0) {
+      return DateFormat('hh:mm a').format(dateTime);
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return DateFormat('EEEE').format(dateTime);
+    } else {
+      return DateFormat('MMM dd').format(dateTime);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +36,9 @@ class MessageItem extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ChatDetailScreen(
-              name: message['name'],
-              avatar: message['avatar'],
+              partnerId: conversation.partner.id,
+              name: conversation.partner.name ?? 'Unknown',
+              avatar: conversation.partner.avatarUrl ?? '',
             ),
           ),
         );
@@ -32,7 +50,16 @@ class MessageItem extends StatelessWidget {
             CircleAvatar(
               radius: 28,
               backgroundColor: Colors.grey[200],
-              backgroundImage: NetworkImage(message['avatar']),
+              backgroundImage: conversation.partner.avatarUrl != null
+                  ? NetworkImage(conversation.partner.avatarUrl!)
+                  : null,
+              child: conversation.partner.avatarUrl == null
+                  ? Text(
+                      conversation.partner.name?.substring(0, 1).toUpperCase() ??
+                          '?',
+                      style: const TextStyle(fontSize: 24),
+                    )
+                  : null,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -40,7 +67,7 @@ class MessageItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    message['name'],
+                    conversation.partner.name ?? 'Unknown',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -49,11 +76,13 @@ class MessageItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    message['lastMessage'],
+                    conversation.lastMessage.content,
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: conversation.unreadCount > 0
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -65,21 +94,24 @@ class MessageItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  message['time'],
+                  _formatTime(conversation.lastMessage.createdAt),
                   style: TextStyle(color: Colors.grey[400], fontSize: 12),
                 ),
                 const SizedBox(height: 5),
-                // Giả lập một chấm thông báo tin nhắn chưa đọc
-                if (message['name'] == 'Carla Schoen')
+                if (conversation.unreadCount > 0)
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: primaryColor,
                       shape: BoxShape.circle,
                     ),
-                    child: const Text(
-                      '1',
-                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    child: Text(
+                      conversation.unreadCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
               ],
