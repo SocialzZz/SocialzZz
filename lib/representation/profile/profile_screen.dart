@@ -229,11 +229,10 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // Hiển thị tên (name) từ schema User
   Widget _buildUserInfo(UserModel user) {
-    // Thêm tham số user vào đây
     return Column(
       children: [
         Text(
-          user.name ?? "Người dùng mới", // Lấy name từ đối tượng user
+          user.name ?? "Người dùng mới",
           style: const TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w500,
