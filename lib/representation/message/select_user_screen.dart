@@ -28,10 +28,18 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
 
   Future<void> _loadUsers() async {
     try {
+      final token = _tokenManager.accessToken;
+
       final response = await http.get(
-        Uri.parse('http://$baseUrl/auth/users'),
-        headers: {'Authorization': 'Bearer ${_tokenManager.accessToken}'},
+        Uri.parse('$baseUrl/auth/users'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
+
+      print('📡 Load users status: ${response.statusCode}');
+      print('📦 Response: ${response.body}');
 
       if (response.statusCode == 200) {
         setState(() {
@@ -42,7 +50,7 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
         throw Exception('Failed to load users');
       }
     } catch (e) {
-      print('Error loading users: $e');
+      print('❌ Error loading users: $e');
       setState(() => _isLoading = false);
     }
   }
