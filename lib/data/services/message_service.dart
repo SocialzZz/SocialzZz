@@ -3,17 +3,18 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../models/message.dart';
 import 'token_manager.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MessageService {
-  static const String baseUrl = 'http://localhost:3000';
+  final String baseUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000';
   final TokenManager _tokenManager = TokenManager();
   IO.Socket? _socket;
 
   Map<String, String> get _headers => {
-        'Content-Type': 'application/json',
-        if (_tokenManager.accessToken != null)
-          'Authorization': 'Bearer ${_tokenManager.accessToken}',
-      };
+    'Content-Type': 'application/json',
+    if (_tokenManager.accessToken != null)
+      'Authorization': 'Bearer ${_tokenManager.accessToken}',
+  };
 
   // Connect to WebSocket
   void connectSocket(String userId) {
@@ -49,7 +50,10 @@ class MessageService {
 
   // Send message via WebSocket
   void sendMessageViaSocket(
-      String senderId, String receiverId, String content) {
+    String senderId,
+    String receiverId,
+    String content,
+  ) {
     _socket?.emit('sendMessage', {
       'senderId': senderId,
       'receiverId': receiverId,
@@ -63,10 +67,7 @@ class MessageService {
     final response = await http.post(
       Uri.parse('$baseUrl/messages'),
       headers: _headers,
-      body: jsonEncode({
-        'receiverId': receiverId,
-        'content': content,
-      }),
+      body: jsonEncode({'receiverId': receiverId, 'content': content}),
     );
 
     if (response.statusCode == 201) {
