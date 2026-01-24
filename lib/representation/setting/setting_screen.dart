@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_media_app/routes/route_names.dart';
+import 'package:flutter_social_media_app/widgets/show_snackbar.dart';
+import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
 
 // --- MODELS ---
 enum SettingType { navigation, toggle, info, logout, destructive }
@@ -29,6 +32,7 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
+  final AuthService _authService = AuthService();
   // Colors
   static const Color mainOrange = Color(0xFFF9622E);
   static const Color borderColor = Color(0xFFE2E5E9);
@@ -137,8 +141,29 @@ class _SettingScreenState extends State<SettingScreen> {
 
   Future<void> _handleLogout() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) setState(() => _isLoading = false);
+
+    try {
+      // 1. Gọi hàm logout thực tế từ AuthService
+      await _authService.logout();
+
+      if (mounted) {
+        // 2. Thông báo cho người dùng
+        ShowSnackbar.showSuccess(context, "Logged out successfully!");
+
+        // 3. Điều hướng về màn hình Login và xóa hết các màn hình trước đó
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          RouteNames.login,
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ShowSnackbar.showError(context, "Logout failed: $e");
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   // UI
@@ -274,9 +299,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
     return Container(
       decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.black12),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.black12)),
       ),
       child: InkWell(
         onTap: () => _handleItemTap(item),
@@ -313,8 +336,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   onChanged: (_) => _handleItemTap(item),
                 )
               else
-                Icon(Icons.chevron_right,
-                    color: Colors.grey[400], size: 22),
+                Icon(Icons.chevron_right, color: Colors.grey[400], size: 22),
             ],
           ),
         ),
@@ -353,9 +375,7 @@ class _SettingScreenState extends State<SettingScreen> {
   Widget _buildLoadingOverlay() {
     return Container(
       color: Colors.black12,
-      child: const Center(
-        child: CircularProgressIndicator(color: mainOrange),
-      ),
+      child: const Center(child: CircularProgressIndicator(color: mainOrange)),
     );
   }
 }

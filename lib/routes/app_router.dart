@@ -5,6 +5,7 @@ import 'package:flutter_social_media_app/representation/home/main_screen.dart';
 import 'package:flutter_social_media_app/representation/notification/notification_screen.dart';
 import 'package:flutter_social_media_app/representation/profile/editprofile_screen.dart';
 import 'package:flutter_social_media_app/representation/search/search_screen.dart';
+import 'package:flutter_social_media_app/representation/step/step_screen.dart';
 import 'package:flutter_social_media_app/representation/video/video_screen.dart';
 import 'package:flutter_social_media_app/representation/welcome/welcome.dart';
 import 'package:flutter_social_media_app/representation/comment/comment_screen.dart';
@@ -26,6 +27,9 @@ class AppRouter {
 
       case RouteNames.welcome:
         return MaterialPageRoute(builder: (_) => const Welcome());
+
+      case RouteNames.step:
+        return MaterialPageRoute(builder: (_) => const StepScreen());
 
       case RouteNames.login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
@@ -49,7 +53,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ReactionListScreen());
 
       case RouteNames.profile:
-        return MaterialPageRoute(builder: (_) => const ProfileScreen());
+        final String userId = settings.arguments as String;
+        return MaterialPageRoute(builder: (_) => ProfileScreen(userId: userId));
 
       case RouteNames.followers:
         return MaterialPageRoute(builder: (_) => const FollowersScreen());

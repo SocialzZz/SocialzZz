@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
+import 'package:flutter_social_media_app/widgets/show_snackbar.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -266,11 +267,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // Validate cơ bản
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      _showSnackBar("Vui lòng điền đầy đủ thông tin", Colors.red);
+      ShowSnackbar.showError(context, "Please enter all fields!");
       return;
     }
     if (password != confirmPassword) {
-      _showSnackBar("Mật khẩu xác nhận không khớp", Colors.red);
+      ShowSnackbar.showError(context, "Confirm password is incorrect");
       return;
     }
 
@@ -280,26 +281,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _authService.register(name, email, password);
 
       if (mounted) {
-        _showSnackBar("Đăng ký thành công!", const Color(0xFFFF6B35));
+        ShowSnackbar.showError(context, "Register successfully!");
 
         Future.delayed(const Duration(seconds: 1), () {
           if (mounted) Navigator.pushNamed(context, RouteNames.login);
         });
       }
     } catch (e) {
-      if (mounted) _showSnackBar("Lỗi: $e", Colors.redAccent);
+      if (mounted) ShowSnackbar.showError(context, "Error $e");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, textAlign: TextAlign.center),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 }

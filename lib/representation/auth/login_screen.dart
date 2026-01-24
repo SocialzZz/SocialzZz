@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/home/main_screen.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
+import 'package:flutter_social_media_app/widgets/show_snackbar.dart';
 import 'register_screen.dart';
 import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
 
@@ -274,9 +275,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Validate cơ bản
     if (email.isEmpty || password.isEmpty) {
-      _showSnackBar("Vui lòng điền đầy đủ thông tin", Colors.red);
+      ShowSnackbar.showError(context, "Please complete all field!");
       return;
     }
     setState(() => _isLoading = true);
@@ -285,19 +285,22 @@ class _LoginScreenState extends State<LoginScreen> {
       await _authService.login(email, password);
 
       if (mounted) {
-        _showSnackBar("Đăng nhập thành công!", const Color(0xFFFF6B35));
+        ShowSnackbar.showSuccess(context, "Log in successfully!");
 
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
-            Navigator.pushReplacement(
+            Navigator.pushNamedAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const MainScreen()),
+              RouteNames.home,
+              (route) => false,
             );
           }
         });
       }
     } catch (e) {
-      if (mounted) _showSnackBar("Lỗi: $e", Colors.redAccent);
+      if (mounted) {
+        ShowSnackbar.showError(context, "$e");
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -305,26 +308,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleGoogleSignIn() async {
     try {
-      // Nếu bạn muốn chuyển sang màn hình chính sau khi đăng nhập:
       if (mounted) {
-        Navigator.pushReplacement(
+        Navigator.pushNamedAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
+          RouteNames.home,
+          (route) => false,
         );
       }
     } catch (e) {
-      print("Lỗi đăng nhập rồi: $e");
-      // Bạn có thể hiện một cái thông báo lỗi (SnackBar) ở đây
+      ShowSnackbar.showError(context, "Can't login with google");
     }
-  }
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, textAlign: TextAlign.center),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 }

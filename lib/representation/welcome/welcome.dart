@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -9,24 +10,22 @@ class Welcome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        // Đảm bảo không bị dính vào tai thỏ/camera
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Column(
             children: [
-              const Spacer(flex: 2), // Đẩy cụm logo xuống 1 chút từ đỉnh
-              // --- CỤM TRÊN: LOGO & GIỚI THIỆU ---
-              Image.asset(
-                'assets/images/SocialzZz-Logo.jpg',
-                width: 140,
-                height: 140,
+              const Spacer(flex: 2),
+              SvgPicture.asset(
+                'assets/images/welcome.svg',
+                width: 300,
+                height: 300,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 26),
               const Text.rich(
                 textAlign: TextAlign.center,
                 TextSpan(
                   text: 'Welcome to ',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
                   children: [
                     TextSpan(
                       text: 'SocialzZz',
@@ -35,39 +34,31 @@ class Welcome extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               const Text(
                 "Connect, share, and be yourself every day. Capture memories and find inspiration from those who matter.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Color.fromARGB(
-                    255,
-                    101,
-                    100,
-                    100,
-                  ), // Làm mờ mô tả để nổi bật tiêu đề
-                  height: 1.5, // Khoảng cách dòng cho dễ đọc
+                  color: Color.fromARGB(255, 101, 100, 100),
+                  height: 1.5,
                 ),
               ),
 
-              const Spacer(flex: 3), // Khoảng trống lớn ở giữa để giãn cách
-              // --- CỤM DƯỚI: NÚT BẤM ---
+              const Spacer(flex: 3),
               SizedBox(
-                width: double.infinity, // Nút rộng hết cỡ
-                height: 55, // Nút cao hơn để dễ bấm
+                width: double.infinity,
+                height: 55,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF9622E),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        15,
-                      ), // Bo góc hiện đại
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     elevation: 0,
                   ),
                   onPressed: () =>
-                      Navigator.pushNamed(context, RouteNames.register),
+                      Navigator.pushNamed(context, RouteNames.step),
                   child: const Text(
                     "Let's Get Started",
                     style: TextStyle(
