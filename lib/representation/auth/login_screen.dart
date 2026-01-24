@@ -279,15 +279,21 @@ class _LoginScreenState extends State<LoginScreen> {
       ShowSnackbar.showError(context, "Please complete all field!");
       return;
     }
+
     setState(() => _isLoading = true);
 
     try {
+      // ⭐ GỌI HÀM LOGIN - Hàm này sẽ tự động lưu token
       await _authService.login(email, password);
+
+      // ⭐ KIỂM TRA XEM TOKEN ĐÃ ĐƯỢC LƯU CHƯA
+      final token = await _authService.getAccessToken();
+      print('🔑 Token saved: ${token?.substring(0, 20)}...');
 
       if (mounted) {
         ShowSnackbar.showSuccess(context, "Log in successfully!");
 
-        Future.delayed(const Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 1), () {
           if (mounted) {
             Navigator.pushNamedAndRemoveUntil(
               context,
