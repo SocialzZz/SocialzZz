@@ -1,22 +1,24 @@
-// lib/data/services/user_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_social_media_app/data/models/user_model.dart';
-import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../models/user_model.dart';
+import 'token_manager.dart';
 
 class UserService {
-  static const String baseUrl = 'http://10.0.2.2:3000';
-  final AuthService _authService = AuthService();
+  final String baseUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000';
+  final TokenManager _tokenManager = TokenManager();
 
   Future<UserModel> fetchUserProfile(String userId) async {
     try {
-      // Lấy access token
-      final token = await _authService.getAccessToken();
+      final token = _tokenManager.accessToken;
 
       if (token == null || token.isEmpty) {
+        print('⚠️ No token found in TokenManager');
         throw Exception('No access token found. Please login again.');
       }
 
+      print('🔑 Using token: ${token.substring(0, 20)}...');
+      
       final url = Uri.parse('$baseUrl/auth/me');
       print('🔍 Fetching profile from: $url');
 
@@ -29,15 +31,24 @@ class UserService {
       );
 
       print('📡 Status Code: ${response.statusCode}');
-      print('📦 Response: ${response.body}');
+      print('📦 Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        return UserModel.fromJson(jsonData);
+        print('📦 Parsed JSON: $jsonData');
+        
+        // Xử lý nếu API trả về dưới `data` field
+        final userData = jsonData['data'] ?? jsonData;
+        print('👤 User Data: $userData');
+        
+        final user = UserModel.fromJson(userData);
+        print('✅ User loaded: ${user.name} - ${user.avatarUrl}');
+        
+        return user;
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized - Please login again');
       } else {
-        throw Exception('Failed to load user (${response.statusCode})');
+        throw Exception('Failed to load user (${response.statusCode}) - ${response.body}');
       }
     } catch (e) {
       print('❌ Error fetching profile: $e');

@@ -21,6 +21,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void initState() {
     super.initState();
     _controller = CreatePostController(context: context);
+    _controller.loadCurrentUser();
   }
 
   @override

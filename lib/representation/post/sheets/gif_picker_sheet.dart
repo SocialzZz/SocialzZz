@@ -3,7 +3,7 @@ import '../controllers/create_post_controller.dart';
 import '../../../data/services/media_asset_service.dart';
 import '../../../data/models/media_asset_model.dart';
 
-class ImagePickerSheet {
+class GifPickerSheet {
   static const Color mainOrange = Color(0xFFF9622E);
 
   static void show(
@@ -76,7 +76,7 @@ class _ImagePickerContentState extends State<_ImagePickerContent> {
   Future<List<MediaAssetModel>> _loadMediaAssets() async {
     try {
       final media = await _mediaService.getMediaAssets(
-        type: 'IMAGE',
+        type: 'GIF',
         category: 'POST',
       );
       _allMedia = media;

@@ -12,7 +12,7 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  final NotificationService _notificationService = MockNotificationService();
+  final NotificationService _notificationService = RealNotificationService();
   List<NotificationItem> _notifications = [];
   int _pendingRequestsCount = 0;
   bool _isLoading = false;
@@ -66,29 +66,53 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          contentPadding: const EdgeInsets.all(24),
+          content: SizedBox(
+            height: 50,
+            width: 50,
+            child: const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6B35)),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _acceptRequest(NotificationItem notification) async {
-    // Optimistic update
-    setState(() {
-      _notifications.removeWhere((n) => n.id == notification.id);
-      _pendingRequestsCount = _pendingRequestsCount > 0
-          ? _pendingRequestsCount - 1
-          : 0;
-    });
+    _showLoadingDialog(context);
 
     try {
-      await _notificationService.acceptRequest(notification.id);
-    } catch (e) {
-      // Rollback on error
-      setState(() {
-        _notifications.add(notification);
-        _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        _pendingRequestsCount++;
-      });
+      await _notificationService.acceptRequest(notification.userId);
 
       if (mounted) {
+        Navigator.pop(context); // Close dialog
+
+        // Reload notifications to get fresh list
+        await _loadNotifications();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Friend request accepted!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+        ).showSnackBar(SnackBar(content: Text('❌ Error: ${e.toString()}')));
       }
     }
   }
@@ -120,6 +144,38 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  Future<void> _unfriend(NotificationItem notification) async {
+    // Optimistic update
+    setState(() {
+      _notifications.removeWhere((n) => n.id == notification.id);
+    });
+
+    try {
+      // Call unfriend/delete friend API
+      await _notificationService.deleteRequest(notification.userId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Unfriended'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _notifications.add(notification);
+        _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('❌ Error: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,6 +203,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       textSecondaryColor: _textSecondary,
                       onAcceptRequest: _acceptRequest,
                       onDeleteRequest: _deleteRequest,
+                      onUnfriend: _unfriend,
                     ),
             ),
           ],
