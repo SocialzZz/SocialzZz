@@ -313,16 +313,35 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    setState(
+      () => _isLoading = true,
+    ); // Hiệu ứng chờ khi đang chọn tài khoản Google
+
     try {
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          RouteNames.home,
-          (route) => false,
-        );
+      // 1. Gọi logic đăng nhập Google từ AuthService
+      final String? token = await _authService.loginWithGoogle();
+
+      if (token != null && mounted) {
+        ShowSnackbar.showSuccess(context, "Log in with Google successfully!");
+
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              RouteNames.home,
+              (route) => false,
+            );
+          }
+        });
       }
     } catch (e) {
-      ShowSnackbar.showError(context, "Can't login with google");
+      if (mounted) {
+        ShowSnackbar.showError(context, "Google Sign-In failed: $e");
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 }
