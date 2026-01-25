@@ -281,7 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _authService.register(name, email, password);
 
       if (mounted) {
-        ShowSnackbar.showError(context, "Register successfully!");
+        ShowSnackbar.showSuccess(context, "Register successfully!");
 
         Future.delayed(const Duration(seconds: 1), () {
           if (mounted) Navigator.pushNamed(context, RouteNames.login);

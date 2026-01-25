@@ -89,17 +89,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Future<void> _acceptRequest(NotificationItem notification) async {
-    _showLoadingDialog(context);
+    // Optimistic update - remove immediately from UI
+    setState(() {
+      _notifications.removeWhere((n) => n.id == notification.id);
+      _pendingRequestsCount = _pendingRequestsCount > 0
+          ? _pendingRequestsCount - 1
+          : 0;
+    });
 
     try {
       await _notificationService.acceptRequest(notification.userId);
 
       if (mounted) {
-        Navigator.pop(context); // Close dialog
-
-        // Reload notifications to get fresh list
-        await _loadNotifications();
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Friend request accepted!'),
@@ -108,8 +109,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
         );
       }
     } catch (e) {
+      // Rollback on error
+      setState(() {
+        _notifications.add(notification);
+        _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        _pendingRequestsCount++;
+      });
+
       if (mounted) {
-        Navigator.pop(context);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('❌ Error: ${e.toString()}')));

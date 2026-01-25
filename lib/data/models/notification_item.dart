@@ -4,18 +4,14 @@ import 'package:flutter/material.dart';
 
 /// Notification types
 enum NotificationType {
-  request,    // Friend request
-  accepted,   // Friend request accepted
-  like,       // Post like
-  mention,    // Mention in post
+  request, // Friend request
+  accepted, // Friend request accepted
+  like, // Post like
+  mention, // Mention in post
 }
 
 /// Friend request status
-enum FriendRequestStatus {
-  pending,
-  accepted,
-  rejected,
-}
+enum FriendRequestStatus { pending, accepted, rejected }
 
 /// Notification model
 class NotificationItem {
@@ -24,7 +20,7 @@ class NotificationItem {
   final String username;
   final String? userImageUrl;
   final NotificationType type;
-  final FriendRequestStatus? requestStatus;  // ← New
+  final FriendRequestStatus? requestStatus; // ← New
   final DateTime createdAt;
   final String? postId;
   final String? postImageUrl;
@@ -35,7 +31,7 @@ class NotificationItem {
     required this.username,
     this.userImageUrl,
     required this.type,
-    this.requestStatus,  // ← New
+    this.requestStatus, // ← New
     required this.createdAt,
     this.postId,
     this.postImageUrl,
@@ -75,10 +71,20 @@ class NotificationItem {
   String get dateLabel {
     if (isToday) return 'TODAY';
     if (isYesterday) return 'YESTERDAY';
-    
+
     const months = [
-      'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-      'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'
+      'JANUARY',
+      'FEBRUARY',
+      'MARCH',
+      'APRIL',
+      'MAY',
+      'JUNE',
+      'JULY',
+      'AUGUST',
+      'SEPTEMBER',
+      'OCTOBER',
+      'NOVEMBER',
+      'DECEMBER',
     ];
     return '${months[createdAt.month - 1]} ${createdAt.day}, ${createdAt.year}';
   }
