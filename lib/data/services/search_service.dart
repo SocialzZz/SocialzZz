@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/search_item.dart';
+import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
+import 'package:flutter_social_media_app/data/services/friend_service.dart';
 
 /// Service interface for search functionality
 abstract class SearchService {
@@ -9,6 +13,231 @@ abstract class SearchService {
   
   Future<void> followAccount(String accountId);
   Future<void> unfollowAccount(String accountId);
+}
+
+/// Real implementation connecting to API
+class RealSearchService implements SearchService {
+  static const String baseUrl = 'http://10.0.2.2:3000';
+  final AuthService _authService = AuthService();
+
+  @override
+  Future<List<AccountItem>> searchAccounts(String query) async {
+    try {
+      final token = await _authService.getAccessToken();
+      
+      if (token == null || token.isEmpty) {
+        print('❌ No access token found');
+        return [];
+      }
+
+      // Gọi FriendService để search user thực từ backend
+      final results = await FriendService.searchUsers(token, query);
+      
+      print('✅ Found ${results.length} users');
+      
+      List<AccountItem> accounts = [];
+      
+      for (var user in results) {
+        if (user is Map) {
+          accounts.add(AccountItem(
+            id: user['_id']?.toString() ?? user['id']?.toString() ?? '',
+            name: user['username']?.toString() ?? user['name']?.toString() ?? 'Unknown',
+            category: user['category']?.toString() ?? user['bio']?.toString() ?? user['email']?.toString() ?? 'User',
+            isFollowing: user['isFollowing'] == true || user['following'] == true || user['isFriend'] == true,
+          ));
+        }
+      }
+      
+      return accounts;
+      
+    } catch (e) {
+      print('❌ Error searching accounts: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<ReelItem>> searchReels(String query) async {
+    try {
+      final token = await _authService.getAccessToken();
+      
+      if (token == null || token.isEmpty) {
+        return [];
+      }
+
+      final url = Uri.parse('$baseUrl/posts/search?keyword=$query&type=reel');
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        List<ReelItem> reels = [];
+        
+        if (jsonData['data'] is List) {
+          for (var post in jsonData['data']) {
+            reels.add(ReelItem(
+              id: post['_id'] ?? post['id'] ?? '',
+              name: post['caption'] ?? post['title'] ?? 'Reel',
+              views: post['views'] ?? 0,
+              authorId: post['userId'] ?? post['author'] ?? '',
+            ));
+          }
+        }
+        
+        return reels;
+      }
+      return [];
+    } catch (e) {
+      print('❌ Error searching reels: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<PlaceItem>> searchPlaces(String query) async {
+    try {
+      final token = await _authService.getAccessToken();
+      
+      if (token == null || token.isEmpty) {
+        return [];
+      }
+
+      final url = Uri.parse('$baseUrl/places/search?keyword=$query');
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        List<PlaceItem> places = [];
+        
+        if (jsonData['data'] is List) {
+          for (var place in jsonData['data']) {
+            places.add(PlaceItem(
+              id: place['_id'] ?? place['id'] ?? '',
+              name: place['name'] ?? 'Place',
+              address: place['address'] ?? place['location'] ?? '',
+            ));
+          }
+        }
+        
+        return places;
+      }
+      return [];
+    } catch (e) {
+      print('❌ Error searching places: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<HashtagItem>> searchHashtags(String query) async {
+    try {
+      final token = await _authService.getAccessToken();
+      
+      if (token == null || token.isEmpty) {
+        return [];
+      }
+
+      final url = Uri.parse('$baseUrl/hashtags/search?keyword=$query');
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        List<HashtagItem> hashtags = [];
+        
+        if (jsonData['data'] is List) {
+          for (var tag in jsonData['data']) {
+            hashtags.add(HashtagItem(
+              id: tag['_id'] ?? tag['id'] ?? '',
+              name: tag['name'] ?? tag['tag'] ?? '',
+              postCount: tag['postCount'] ?? tag['count'] ?? 0,
+            ));
+          }
+        }
+        
+        return hashtags;
+      }
+      return [];
+    } catch (e) {
+      print('❌ Error searching hashtags: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<void> followAccount(String accountId) async {
+    try {
+      final token = await _authService.getAccessToken();
+      
+      if (token == null || token.isEmpty) {
+        throw Exception('No access token');
+      }
+
+      final url = Uri.parse('$baseUrl/users/$accountId/follow');
+      
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to follow account');
+      }
+    } catch (e) {
+      print('❌ Error following account: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfollowAccount(String accountId) async {
+    try {
+      final token = await _authService.getAccessToken();
+      
+      if (token == null || token.isEmpty) {
+        throw Exception('No access token');
+      }
+
+      final url = Uri.parse('$baseUrl/users/$accountId/unfollow');
+      
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to unfollow account');
+      }
+    } catch (e) {
+      print('❌ Error unfollowing account: $e');
+      rethrow;
+    }
+  }
 }
 
 /// Mock implementation 

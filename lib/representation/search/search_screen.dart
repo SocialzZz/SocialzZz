@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/data/models/search_item.dart';
 import 'package:flutter_social_media_app/data/services/search_service.dart';
+import 'package:flutter_social_media_app/data/services/friend_service.dart';
+import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
 import 'search_header.dart';
 import 'search_tabs.dart';
 import 'account_list.dart';
@@ -17,9 +19,11 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final SearchService _searchService = MockSearchService();
+  final SearchService _searchService = RealSearchService();
+  final AuthService _authService = AuthService();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
+  String? _accessToken;
 
   int _selectedTab = 0;
   String _searchQuery = '';
@@ -40,7 +44,16 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _loadAccessToken();
     _loadInitialData();
+  }
+
+  Future<void> _loadAccessToken() async {
+    try {
+      _accessToken = await _authService.getAccessToken();
+    } catch (e) {
+      print('❌ Error loading access token: $e');
+    }
   }
 
   @override
@@ -127,6 +140,15 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _toggleFollow(AccountItem account) async {
+    if (_accessToken == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Vui lòng đăng nhập lại')),
+        );
+      }
+      return;
+    }
+
     // Optimistic update
     setState(() {
       final index = _accounts.indexWhere((a) => a.id == account.id);
@@ -137,9 +159,21 @@ class _SearchScreenState extends State<SearchScreen> {
 
     try {
       if (account.isFollowing) {
-        await _searchService.unfollowAccount(account.id);
+        // Remove friend
+        await FriendService.removeFriend(_accessToken!, account.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đã xóa bạn')),
+          );
+        }
       } else {
-        await _searchService.followAccount(account.id);
+        // Send friend request
+        await FriendService.sendFriendRequest(_accessToken!, account.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đã gửi yêu cầu kết bạn')),
+          );
+        }
       }
     } catch (e) {
       // Rollback on error

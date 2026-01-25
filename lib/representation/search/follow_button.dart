@@ -25,7 +25,7 @@ class FollowButton extends StatelessWidget {
                 color: Colors.white,
               ),
               child: Text(
-                'Following',
+                'Cancel request',
                 style: TextStyle(
                   color: accent,
                   fontSize: 14,
@@ -40,7 +40,7 @@ class FollowButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
               ),
               child: const Text(
-                'Follow',
+                'Add friend',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,

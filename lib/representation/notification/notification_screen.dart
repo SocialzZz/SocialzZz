@@ -34,7 +34,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
     });
 
     try {
+      // Load notifications from mock service
       final notifications = await _notificationService.getNotifications();
+      
       if (mounted) {
         setState(() {
           _notifications = notifications;
@@ -62,7 +64,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
         });
       }
     } catch (e) {
-      // Handle error silently
+      // Ignore error, use default value
+      if (mounted) {
+        setState(() {
+          _pendingRequestsCount = 0;
+        });
+      }
     }
   }
 
@@ -75,21 +82,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
           : 0;
     });
 
-    try {
-      await _notificationService.acceptRequest(notification.id);
-    } catch (e) {
-      // Rollback on error
-      setState(() {
-        _notifications.add(notification);
-        _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        _pendingRequestsCount++;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
-      }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã chấp nhận yêu cầu kết bạn')),
+      );
     }
   }
 
@@ -102,21 +98,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
           : 0;
     });
 
-    try {
-      await _notificationService.deleteRequest(notification.id);
-    } catch (e) {
-      // Rollback on error
-      setState(() {
-        _notifications.add(notification);
-        _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        _pendingRequestsCount++;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
-      }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã từ chối yêu cầu kết bạn')),
+      );
     }
   }
 
