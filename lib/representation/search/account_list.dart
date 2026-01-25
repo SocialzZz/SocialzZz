@@ -23,58 +23,48 @@ class AccountList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (accounts.isEmpty) {
-      return const Center(
-        child: Text(
-          'No accounts found',
-          style: TextStyle(color: Color(0xFF9E9E9E)),
-        ),
-      );
-    }
-
     return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       itemCount: accounts.length,
-      separatorBuilder: (_, __) => Divider(height: 1, color: dividerColor),
+      separatorBuilder: (context, index) =>
+          Divider(color: dividerColor, height: 12, thickness: 0.5),
       itemBuilder: (context, index) {
         final account = accounts[index];
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              AvatarWidget(accent: accentColor, imageUrl: account.imageUrl),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      account.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: textPrimaryColor,
-                      ),
+        return Row(
+          children: [
+            AvatarWidget(accent: accentColor, imageUrl: account.imageUrl),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    account.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: textPrimaryColor,
                     ),
-                    if (account.category != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        account.category!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: textSecondaryColor,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 2),
+                  if (account.category != null)
+                    Text(
+                      account.category!,
+                      style: TextStyle(fontSize: 14, color: textSecondaryColor),
+                    ),
+                ],
               ),
-              FollowButton(
-                isFollowing: account.isFollowing,
-                accent: accentColor,
-                onTap: () => onToggleFollow(account),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 12),
+            FollowButton(
+              isFollowing: account.isFollowing,
+              requestSent: account.requestSent,
+              isFriend: account.isFriend,
+              accent: accentColor,
+              onTap: () => onToggleFollow(account),
+              onCancel: () => onToggleFollow(account),
+            ),
+          ],
         );
       },
     );

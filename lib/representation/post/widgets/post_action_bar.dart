@@ -3,6 +3,7 @@ import '../controllers/create_post_controller.dart';
 import '../sheets/image_picker_sheet.dart';
 import '../sheets/tag_friend_sheet.dart';
 import '../sheets/feeling_sheet.dart';
+import '../sheets/gif_picker_sheet.dart';
 
 class PostActionBar extends StatelessWidget {
   final CreatePostController controller;
@@ -73,7 +74,7 @@ class PostActionBar extends StatelessWidget {
                 context,
                 Icons.gif_box, 
                 const Color(0xFFAB47BC), 
-                onTap: () => ImagePickerSheet.show(context, controller, isGif: true)
+                onTap: () => GifPickerSheet.show(context, controller, isGif: true)
               ),
             ],
           ),

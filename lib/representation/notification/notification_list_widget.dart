@@ -9,6 +9,7 @@ class NotificationListWidget extends StatelessWidget {
   final Color textSecondaryColor;
   final Function(NotificationItem) onAcceptRequest;
   final Function(NotificationItem) onDeleteRequest;
+  final Function(NotificationItem)? onUnfriend;  // ← Thêm
 
   const NotificationListWidget({
     super.key,
@@ -18,6 +19,7 @@ class NotificationListWidget extends StatelessWidget {
     required this.textSecondaryColor,
     required this.onAcceptRequest,
     required this.onDeleteRequest,
+    this.onUnfriend,
   });
 
   @override
@@ -31,7 +33,6 @@ class NotificationListWidget extends StatelessWidget {
       );
     }
 
-    // Group notifications by date
     final groupedNotifications = <String, List<NotificationItem>>{};
     for (final notification in notifications) {
       final dateLabel = notification.dateLabel;
@@ -71,6 +72,7 @@ class NotificationListWidget extends StatelessWidget {
                 textSecondaryColor: textSecondaryColor,
                 onAccept: onAcceptRequest,
                 onDelete: onDeleteRequest,
+                onUnfriend: onUnfriend,  // ← Truyền down
               ),
             ),
           ],

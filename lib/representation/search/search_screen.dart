@@ -17,7 +17,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final SearchService _searchService = MockSearchService();
+  final SearchService _searchService = RealSearchService();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
 
@@ -40,7 +40,6 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _loadInitialData();
   }
 
   @override
@@ -66,23 +65,17 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  Future<void> _loadInitialData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await _performSearch();
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
   Future<void> _performSearch() async {
+    if (_searchQuery.isEmpty) {
+      setState(() {
+        _accounts = [];
+        _reels = [];
+        _places = [];
+        _hashtags = [];
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -106,7 +99,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+        ).showSnackBar(SnackBar(content: Text('Lỗi: ${e.toString()}')));
       }
     } finally {
       if (mounted) {
@@ -127,33 +120,112 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _toggleFollow(AccountItem account) async {
+    if (account.requestSent) {
+      await _cancelRequest(account);
+      return;
+    }
+
+    // If already friend, do nothing
+    if (account.isFriend) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('👥 Already friends'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     // Optimistic update
     setState(() {
       final index = _accounts.indexWhere((a) => a.id == account.id);
       if (index != -1) {
-        _accounts[index] = account.copyWith(isFollowing: !account.isFollowing);
+        _accounts[index] = account.copyWith(requestSent: true);
       }
     });
 
     try {
-      if (account.isFollowing) {
-        await _searchService.unfollowAccount(account.id);
-      } else {
-        await _searchService.followAccount(account.id);
+      // Send friend request
+      await _searchService.followAccount(account.id);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Request sent!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       // Rollback on error
       setState(() {
         final index = _accounts.indexWhere((a) => a.id == account.id);
         if (index != -1) {
-          _accounts[index] = account;
+          _accounts[index] = account.copyWith(requestSent: false);
         }
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+        String errorMsg = e.toString().replaceAll('Exception: ', '');
+
+        // If "already exists" error, still keep requestSent as true
+        if (errorMsg.contains('already exists')) {
+          setState(() {
+            final index = _accounts.indexWhere((a) => a.id == account.id);
+            if (index != -1) {
+              _accounts[index] = account.copyWith(requestSent: true);
+            }
+          });
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚠️ $errorMsg'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _cancelRequest(AccountItem account) async {
+    // Optimistic update
+    setState(() {
+      final index = _accounts.indexWhere((a) => a.id == account.id);
+      if (index != -1) {
+        _accounts[index] = account.copyWith(requestSent: false);
+      }
+    });
+
+    try {
+      await _searchService.cancelRequest(account.id);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Request canceled'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Rollback on error
+      setState(() {
+        final index = _accounts.indexWhere((a) => a.id == account.id);
+        if (index != -1) {
+          _accounts[index] = account.copyWith(requestSent: true);
+        }
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -162,8 +234,11 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.clear();
     setState(() {
       _searchQuery = '';
+      _accounts = [];
+      _reels = [];
+      _places = [];
+      _hashtags = [];
     });
-    _performSearch();
   }
 
   @override
@@ -206,6 +281,12 @@ class _SearchScreenState extends State<SearchScreen> {
 
     switch (_selectedTab) {
       case 0:
+        if (_accounts.isEmpty && _searchQuery.isNotEmpty) {
+          return const Center(child: Text('No accounts found'));
+        }
+        if (_accounts.isEmpty) {
+          return const Center(child: Text('Search for users'));
+        }
         return AccountList(
           accounts: _accounts,
           accentColor: _accent,

@@ -11,6 +11,7 @@ class NotificationItemWidget extends StatelessWidget {
   final Color textSecondaryColor;
   final Function(NotificationItem) onAccept;
   final Function(NotificationItem) onDelete;
+  final Function(NotificationItem)? onUnfriend;
 
   const NotificationItemWidget({
     super.key,
@@ -20,6 +21,7 @@ class NotificationItemWidget extends StatelessWidget {
     required this.textSecondaryColor,
     required this.onAccept,
     required this.onDelete,
+    this.onUnfriend,
   });
 
   @override
@@ -54,14 +56,64 @@ class NotificationItemWidget extends StatelessWidget {
               ],
             ),
           ),
-          if (notification.type == NotificationType.request) ...[
+          // Show Accept/Delete buttons for PENDING or null status (default is pending)
+          if (notification.type == NotificationType.request &&
+              (notification.requestStatus == null ||
+                  notification.requestStatus == FriendRequestStatus.pending)) ...[
             const SizedBox(width: 8),
             RequestButtons(
               accentColor: accentColor,
               onAccept: () => onAccept(notification),
               onDelete: () => onDelete(notification),
             ),
-          ] else if (notification.postImageUrl != null ||
+          ]
+          // Show Unfriend button for ACCEPTED requests
+          else if (notification.type == NotificationType.request &&
+              notification.requestStatus == FriendRequestStatus.accepted) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => onUnfriend?.call(notification),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: accentColor, width: 1.4),
+                ),
+                child: Text(
+                  'Unfriend',
+                  style: TextStyle(
+                    color: accentColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ]
+          // Show Unfriend for accepted type notifications
+          else if (notification.type == NotificationType.accepted) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => onUnfriend?.call(notification),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: accentColor, width: 1.4),
+                ),
+                child: Text(
+                  'Unfriend',
+                  style: TextStyle(
+                    color: accentColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ]
+          // Show post preview for other notification types
+          else if (notification.postImageUrl != null ||
               notification.postId != null) ...[
             const SizedBox(width: 8),
             PostPreviewPlaceholder(accent: accentColor),

@@ -16,20 +16,34 @@ abstract class SearchItem {
 /// Account/User search item
 class AccountItem extends SearchItem {
   final bool isFollowing;
+  final bool requestSent;
+  final bool requestReceived;
+  final bool isFriend;
   final String? category;
 
   AccountItem({
-    required super.id,
-    required super.name,
+    required String id,
+    required String name,
     this.isFollowing = false,
+    this.requestSent = false,
+    this.requestReceived = false,
+    this.isFriend = false,
     this.category,
-    super.imageUrl,
-  }) : super(subtitle: category);
+    String? imageUrl,
+  }) : super(
+    id: id,
+    name: name,
+    subtitle: category,
+    imageUrl: imageUrl,
+  );
 
   AccountItem copyWith({
     String? id,
     String? name,
     bool? isFollowing,
+    bool? requestSent,
+    bool? requestReceived,
+    bool? isFriend,
     String? category,
     String? imageUrl,
   }) {
@@ -37,6 +51,9 @@ class AccountItem extends SearchItem {
       id: id ?? this.id,
       name: name ?? this.name,
       isFollowing: isFollowing ?? this.isFollowing,
+      requestSent: requestSent ?? this.requestSent,
+      requestReceived: requestReceived ?? this.requestReceived,
+      isFriend: isFriend ?? this.isFriend,
       category: category ?? this.category,
       imageUrl: imageUrl ?? this.imageUrl,
     );
@@ -50,13 +67,18 @@ class ReelItem extends SearchItem {
   final String? authorId;
 
   ReelItem({
-    required super.id,
-    required super.name,
+    required String id,
+    required String name,
     this.thumbnailUrl,
     this.views,
     this.authorId,
-    super.subtitle,
-  }) : super(imageUrl: thumbnailUrl);
+    String? subtitle,
+  }) : super(
+    id: id,
+    name: name,
+    subtitle: subtitle,
+    imageUrl: thumbnailUrl,
+  );
 }
 
 /// Place search item
@@ -66,12 +88,16 @@ class PlaceItem extends SearchItem {
   final double? longitude;
 
   PlaceItem({
-    required super.id,
-    required super.name,
+    required String id,
+    required String name,
     this.address,
     this.latitude,
     this.longitude,
-  }) : super(subtitle: address);
+  }) : super(
+    id: id,
+    name: name,
+    subtitle: address,
+  );
 }
 
 /// Hashtag search item
@@ -79,11 +105,12 @@ class HashtagItem extends SearchItem {
   final int? postCount;
 
   HashtagItem({
-    required super.id,
-    required super.name,
+    required String id,
+    required String name,
     this.postCount,
   }) : super(
-          subtitle: postCount != null ? '$postCount posts' : null,
-        );
+    id: id,
+    name: name,
+    subtitle: postCount != null ? '$postCount posts' : null,
+  );
 }
-

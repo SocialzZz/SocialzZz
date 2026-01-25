@@ -39,7 +39,7 @@ class AuthService {
 
       // ⭐ FIX: Backend trả về "accessToken" không phải "access_token"
       final token = response
-          .data['accessToken']; // ← ĐỔI TỪ access_token SANG accessToken
+          .data['access_token']; // ← ĐỔI TỪ access_token SANG accessToken
       final userId = response.data['user']?['id'];
 
       print('🔍 Token from response: ${token?.substring(0, 20)}...');
