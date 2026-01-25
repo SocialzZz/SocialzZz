@@ -1,72 +1,113 @@
 import 'package:flutter/material.dart';
-import '../../data/models/comment_data.dart';
+import '../../data/models/comment_model.dart';
 
 class CommentItem extends StatelessWidget {
-  final CommentData comment;
-  final bool isReply;
+  final CommentModel comment;
   final VoidCallback? onLike;
   final VoidCallback? onReply;
 
   const CommentItem({
     super.key,
     required this.comment,
-    this.isReply = false,
     this.onLike,
     this.onReply,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSingleComment(),
-        if (comment.replies.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(left: 44),
-            child: Column(
-              children: comment.replies.map((reply) => CommentItem(comment: reply, isReply: true)).toList(),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildSingleComment() {
     return Padding(
-      padding: EdgeInsets.only(bottom: isReply ? 12 : 16),
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(radius: isReply ? 14 : 18, backgroundImage: NetworkImage(comment.avatar)),
-          const SizedBox(width: 10),
+          // 1. Avatar
+          CircleAvatar(
+            radius: 18,
+            backgroundImage: NetworkImage(comment.userAvatar),
+            backgroundColor: Colors.grey[200],
+          ),
+          const SizedBox(width: 12),
+          
+          // 2. Cột nội dung chính
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [
-                  Text(comment.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: isReply ? 13 : 14)),
-                  const SizedBox(width: 8),
-                  Text(comment.time, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-                ]),
+                // Tên người dùng
+                Text(
+                  comment.userName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 14,
+                  ),
+                ),
+                
                 const SizedBox(height: 4),
-                Text(comment.text, style: TextStyle(fontSize: isReply ? 13 : 14, color: Colors.black87)),
+                
+                // Nội dung comment (xuống hàng riêng)
+                Text(
+                  comment.content,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                ),
+                
                 const SizedBox(height: 8),
-                Row(children: [
-                  GestureDetector(
-                    onTap: onLike,
-                    child: Row(children: [
-                      Icon(comment.isLiked ? Icons.favorite : Icons.favorite_border, size: 16, color: comment.isLiked ? Colors.red : Colors.grey[500]),
-                      const SizedBox(width: 4),
-                      Text('${comment.likes}', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                    ]),
-                  ),
-                  const SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: onReply,
-                    child: Text('Reply', style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500)),
-                  ),
-                ]),
+                
+                // 3. Hàng thao tác: Tim -> Reply -> Thời gian
+                Row(
+                  children: [
+                    // Nút Tim viền xám (Đã đưa về đầu & để gần lại)
+                    GestureDetector(
+                      onTap: onLike,
+                      child: Row(
+                        children: [
+                          Icon(
+                            // Logic hiển thị tim đỏ nếu đã like (nếu có logic isLiked)
+                            comment.isLiked ? Icons.favorite : Icons.favorite_border,
+                            size: 16,
+                            color: comment.isLiked ? Colors.red : Colors.grey[500],
+                          ),
+                          if (comment.likeCount > 0) ...[
+                            const SizedBox(width: 4),
+                            Text(
+                              '${comment.likeCount}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500]
+                              ),
+                            ),
+                          ]
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(width: 20), // Khoảng cách giữa Tim và Reply
+
+                    // Nút Reply
+                    GestureDetector(
+                      onTap: onReply,
+                      child: Text(
+                        'Reply',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(width: 20), // Khoảng cách giữa Reply và Thời gian
+
+                    // Thời gian
+                    Text(
+                      comment.timeAgo,
+                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

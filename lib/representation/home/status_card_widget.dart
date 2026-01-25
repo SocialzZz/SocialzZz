@@ -72,7 +72,17 @@ class StatusCardWidget extends StatelessWidget {
                 _buildInteractionItem(Icons.favorite_border, post.likes),
                 const SizedBox(width: 15),
                 GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, RouteNames.comment),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context, 
+                      RouteNames.comment,
+                      arguments: {
+                        'postId': post.id, // ID bài viết (Bắt buộc để API gọi đúng)
+                        'postOwnerAvatar': post.userAvatar,
+                        'postCaption': post.content,
+                      },
+                    );
+                  },
                   child: _buildInteractionItem(
                     Icons.chat_outlined,
                     post.comments,

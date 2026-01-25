@@ -72,7 +72,18 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const SettingScreen());
 
       case RouteNames.comment:
-        return MaterialPageRoute(builder: (_) => const CommentScreen());
+        // 1. Lấy arguments truyền vào từ Navigator và ép kiểu thành Map
+        final args = settings.arguments as Map<String, dynamic>;
+
+        return MaterialPageRoute(
+          builder: (_) => CommentScreen(
+            postId: args['postId'], // Lấy postId (Bắt buộc)
+            // Lấy các tham số tùy chọn (có thể null nên dùng ??)
+            postOwnerAvatar:
+                args['postOwnerAvatar'] ?? 'https://i.pravatar.cc/150?img=1',
+            postCaption: args['postCaption'] ?? '',
+          ),
+        );
 
       default:
         return MaterialPageRoute(
