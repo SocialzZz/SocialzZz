@@ -197,10 +197,25 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // Cập nhật Avatar hiển thị từ URL trong database
+  // Trong ProfileScreen, tìm chỗ navigate đến EditProfile và sửa lại:
+
   Widget _buildAvatar(BuildContext context, UserModel user) {
     return Center(
       child: GestureDetector(
-        onTap: () => Navigator.pushNamed(context, RouteNames.editProfile),
+        onTap: () async {
+          // ✅ Chờ result từ EditProfile
+          final result = await Navigator.pushNamed(
+            context,
+            RouteNames.editProfile,
+          );
+
+          // ✅ Nếu có result (user đã update), reload lại
+          if (result != null && mounted) {
+            setState(() {
+              _userFuture = _userService.fetchUserProfile(widget.userId);
+            });
+          }
+        },
         child: Container(
           width: 88,
           height: 88,
@@ -254,7 +269,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // --- Các Widget phụ trợ giữ nguyên logic của bạn ---
   Widget _buildStatsSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
