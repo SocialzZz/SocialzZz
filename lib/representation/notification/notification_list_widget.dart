@@ -20,6 +20,7 @@ class NotificationListWidget extends StatelessWidget {
     required this.onAcceptRequest,
     required this.onDeleteRequest,
     this.onUnfriend,
+    final String? processingRequestId,
   });
 
   @override

@@ -50,7 +50,9 @@ class NotificationItemWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  notification.actionText,
+                  notification.requestStatus == FriendRequestStatus.accepted
+                      ? 'is now friend'
+                      : notification.actionText,
                   style: TextStyle(fontSize: 14, color: textSecondaryColor),
                 ),
               ],
@@ -59,7 +61,8 @@ class NotificationItemWidget extends StatelessWidget {
           // Show Accept/Delete buttons for PENDING or null status (default is pending)
           if (notification.type == NotificationType.request &&
               (notification.requestStatus == null ||
-                  notification.requestStatus == FriendRequestStatus.pending)) ...[
+                  notification.requestStatus ==
+                      FriendRequestStatus.pending)) ...[
             const SizedBox(width: 8),
             RequestButtons(
               accentColor: accentColor,
@@ -74,7 +77,10 @@ class NotificationItemWidget extends StatelessWidget {
             GestureDetector(
               onTap: () => onUnfriend?.call(notification),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: accentColor, width: 1.4),
@@ -96,7 +102,10 @@ class NotificationItemWidget extends StatelessWidget {
             GestureDetector(
               onTap: () => onUnfriend?.call(notification),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: accentColor, width: 1.4),

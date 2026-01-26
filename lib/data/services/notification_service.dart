@@ -9,6 +9,7 @@ abstract class NotificationService {
   Future<List<NotificationItem>> getNotifications();
   Future<void> acceptRequest(String userId);
   Future<void> deleteRequest(String notificationId);
+  Future<void> unfriend(String friendId);
   Future<int> getPendingRequestsCount();
 }
 
@@ -142,6 +143,38 @@ class RealNotificationService implements NotificationService {
       print('✅ Friend request rejected successfully');
     } catch (e) {
       print('❌ Error rejecting request: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfriend(String friendId) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('No access token found');
+      }
+
+      print('👋 Removing friend: $friendId');
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/friends/$friendId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📡 Unfriend status: ${response.statusCode}');
+      print('📦 Response: ${response.body}');
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception('Failed to unfriend: ${response.statusCode}');
+      }
+
+      print('✅ Friend removed successfully');
+    } catch (e) {
+      print('❌ Error unfriending: $e');
       rethrow;
     }
   }
@@ -285,6 +318,12 @@ class MockNotificationService implements NotificationService {
   Future<void> deleteRequest(String notificationId) async {
     await Future.delayed(const Duration(milliseconds: 500));
     _notifications.removeWhere((n) => n.id == notificationId);
+  }
+
+  @override
+  Future<void> unfriend(String friendId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    _notifications.removeWhere((n) => n.userId == friendId);
   }
 
   @override

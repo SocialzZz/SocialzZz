@@ -15,42 +15,43 @@ class SelectUserScreen extends StatefulWidget {
 class _SelectUserScreenState extends State<SelectUserScreen> {
   final Color primaryColor = const Color(0xFFF9622E);
   final TokenManager _tokenManager = TokenManager();
-  List<dynamic> _users = [];
+  List<dynamic> _friends = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUsers();
+    _loadFriendsList();
   }
 
   final String baseUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000';
 
-  Future<void> _loadUsers() async {
+  Future<void> _loadFriendsList() async {
     try {
       final token = _tokenManager.accessToken;
 
       final response = await http.get(
-        Uri.parse('$baseUrl/auth/users'),
+        Uri.parse('$baseUrl/messages/friends/list'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('📡 Load users status: ${response.statusCode}');
+      print('📡 Load friends list status: ${response.statusCode}');
       print('📦 Response: ${response.body}');
 
       if (response.statusCode == 200) {
+        final friendsData = jsonDecode(response.body);
         setState(() {
-          _users = jsonDecode(response.body);
+          _friends = friendsData;
           _isLoading = false;
         });
       } else {
-        throw Exception('Failed to load users');
+        throw Exception('Failed to load friends');
       }
     } catch (e) {
-      print('❌ Error loading users: $e');
+      print('❌ Error loading friends: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -62,7 +63,7 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
       appBar: AppBar(
         backgroundColor: primaryColor,
         title: const Text(
-          'Select User to Chat',
+          'Danh sách bạn bè',
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
@@ -72,54 +73,81 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _users.isEmpty
+          : _friends.isEmpty
           ? const Center(
               child: Text(
-                'No users found',
+                'Bạn chưa có bạn bè nào',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             )
           : ListView.builder(
-              itemCount: _users.length,
+              itemCount: _friends.length,
               itemBuilder: (context, index) {
-                final user = _users[index];
+                final friendData = _friends[index];
+                final friend = friendData['friend'];
+                final lastMessage = friendData['lastMessage'];
+                final unreadCount = friendData['unreadCount'] ?? 0;
+
                 return ListTile(
                   leading: CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.grey[200],
-                    backgroundImage: user['avatarUrl'] != null
-                        ? NetworkImage(user['avatarUrl'])
+                    backgroundImage: friend['avatarUrl'] != null
+                        ? NetworkImage(friend['avatarUrl'])
                         : null,
-                    child: user['avatarUrl'] == null
+                    child: friend['avatarUrl'] == null
                         ? Text(
-                            user['name']?.substring(0, 1).toUpperCase() ?? '?',
+                            friend['name']?.substring(0, 1).toUpperCase() ??
+                                '?',
                             style: const TextStyle(fontSize: 20),
                           )
                         : null,
                   ),
                   title: Text(
-                    user['name'] ?? 'Unknown',
+                    friend['name'] ?? 'Không rõ',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),
                   ),
                   subtitle: Text(
-                    user['email'] ?? '',
+                    lastMessage != null
+                        ? (lastMessage['content'] ?? '').length > 40
+                              ? '${(lastMessage['content'] ?? '').substring(0, 40)}...'
+                              : (lastMessage['content'] ?? '')
+                        : 'Chưa có tin nhắn',
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: Icon(
-                    Icons.chat_bubble_outline,
-                    color: primaryColor,
-                  ),
+                  trailing: unreadCount > 0
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          child: Text(
+                            '$unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        )
+                      : Icon(Icons.chat_bubble_outline, color: primaryColor),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => ChatDetailScreen(
-                          partnerId: user['id'],
-                          name: user['name'] ?? 'Unknown',
-                          avatar: user['avatarUrl'] ?? '',
+                          partnerId: friend['id'],
+                          name: friend['name'] ?? 'Không rõ',
+                          avatar: friend['avatarUrl'] ?? '',
                         ),
                       ),
                     );

@@ -115,14 +115,20 @@ class PostService {
     }
   }
 
-  Future<List<CommentModel>> getComments(String postId, {int page = 1, int limit = 20}) async {
+  Future<List<CommentModel>> getComments(
+    String postId, {
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
       final token = await _tokenManager.accessToken;
       if (token == null) throw Exception('No access token');
 
       // URL Query params: ?page=1&limit=20
-      final url = Uri.parse('$baseUrl/posts/$postId/comments?page=$page&limit=$limit');
-      
+      final url = Uri.parse(
+        '$baseUrl/posts/$postId/comments?page=$page&limit=$limit',
+      );
+
       print('🔍 Fetching comments: $url');
 
       final response = await http.get(
@@ -137,10 +143,10 @@ class PostService {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        
+
         // Backend trả về: { "data": [...], "meta": {...} }
         final List<dynamic> rawList = jsonData['data'] ?? [];
-        
+
         // MAP DỮ LIỆU: Backend trả 'author', Model cần 'user'
         final mappedList = rawList.map((item) {
           if (item is Map<String, dynamic>) {
@@ -176,20 +182,18 @@ class PostService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'content': content,
-        }),
+        body: jsonEncode({'content': content}),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         final dynamic rawData = jsonData['data'] ?? jsonData;
-        
+
         // MAP DỮ LIỆU cho Single Item
         if (rawData is Map<String, dynamic>) {
-           if (rawData.containsKey('author') && !rawData.containsKey('user')) {
-              rawData['user'] = rawData['author'];
-            }
+          if (rawData.containsKey('author') && !rawData.containsKey('user')) {
+            rawData['user'] = rawData['author'];
+          }
         }
 
         print('✅ Comment added successfully');

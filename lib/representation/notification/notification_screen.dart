@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/data/models/notification_item.dart';
 import 'package:flutter_social_media_app/data/services/notification_service.dart';
+import 'package:flutter_social_media_app/representation/notification/notification_manager.dart';
 import 'notification_header.dart';
 import 'notification_list_widget.dart';
 
@@ -16,6 +17,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   List<NotificationItem> _notifications = [];
   int _pendingRequestsCount = 0;
   bool _isLoading = false;
+  String? _processingRequestId;
 
   final Color _accent = const Color(0xFFFF6B35);
   final Color _textPrimary = const Color(0xFF212121);
@@ -60,10 +62,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
         setState(() {
           _pendingRequestsCount = count;
         });
+        // Cập nhật vào manager để HomeHeader nhận được
+        NotificationManager.instance.updateCount(count);
       }
-    } catch (e) {
-      // Handle error silently
-    }
+    } catch (e) {}
   }
 
   void _showLoadingDialog(BuildContext context) {
@@ -89,6 +91,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Future<void> _acceptRequest(NotificationItem notification) async {
+    // Prevent double-click
+    if (_processingRequestId == notification.id) {
+      return;
+    }
+
+    // Mark as processing
+    setState(() {
+      _processingRequestId = notification.id;
+    });
+
     // Optimistic update - remove immediately from UI
     setState(() {
       _notifications.removeWhere((n) => n.id == notification.id);
@@ -101,19 +113,44 @@ class _NotificationScreenState extends State<NotificationScreen> {
       await _notificationService.acceptRequest(notification.userId);
 
       if (mounted) {
+        setState(() {
+          _processingRequestId = null;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Friend request accepted!'),
             duration: Duration(seconds: 2),
           ),
         );
+
+        // Reload notifications to ensure UI is synced with backend
+        // Backend now properly deletes the notification when request is accepted
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          await _loadNotifications();
+        }
       }
     } catch (e) {
+      final errorMsg = e.toString();
+
+      // If request is not pending, it was likely already accepted elsewhere
+      if (errorMsg.contains('not pending')) {
+        if (mounted) {
+          setState(() {
+            _processingRequestId = null;
+          });
+          // Reload to sync with backend
+          await _loadNotifications();
+        }
+        return;
+      }
+
       // Rollback on error
       setState(() {
         _notifications.add(notification);
         _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         _pendingRequestsCount++;
+        _processingRequestId = null;
       });
 
       if (mounted) {
@@ -211,6 +248,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       onAcceptRequest: _acceptRequest,
                       onDeleteRequest: _deleteRequest,
                       onUnfriend: _unfriend,
+                      processingRequestId: _processingRequestId,
                     ),
             ),
           ],

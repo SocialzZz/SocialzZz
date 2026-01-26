@@ -1,3 +1,4 @@
+// lib/representation/search/search_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/data/models/search_item.dart';
@@ -40,6 +41,8 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    // ⭐ TẢI SUGGESTIONS KHI MỚI VÀO TRANG
+    _loadInitialSuggestions();
   }
 
   @override
@@ -48,6 +51,24 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  // ⭐ HÀM TẢI GỢI Ý BAN ĐẦU
+  Future<void> _loadInitialSuggestions() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Tải suggestions cho accounts (tab đầu tiên)
+      _accounts = await _searchService.getSuggestedAccounts();
+
+      print('✅ Loaded ${_accounts.length} suggested accounts');
+    } catch (e) {
+      print('❌ Error loading suggestions: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   void _onSearchChanged() {
@@ -66,13 +87,9 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _performSearch() async {
+    // ⭐ NẾU XÓA HẾT TEXT, TẢI LẠI SUGGESTIONS
     if (_searchQuery.isEmpty) {
-      setState(() {
-        _accounts = [];
-        _reels = [];
-        _places = [];
-        _hashtags = [];
-      });
+      _loadInitialSuggestions();
       return;
     }
 
@@ -115,7 +132,13 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() {
         _selectedTab = index;
       });
-      _performSearch();
+
+      // ⭐ NẾU CHƯA CÓ SEARCH QUERY, TẢI SUGGESTIONS
+      if (_searchQuery.isEmpty && index == 0) {
+        _loadInitialSuggestions();
+      } else {
+        _performSearch();
+      }
     }
   }
 
@@ -129,7 +152,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (account.isFriend) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('👥 Already friends'),
+          content: Text('💥 Already friends'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -234,11 +257,9 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.clear();
     setState(() {
       _searchQuery = '';
-      _accounts = [];
-      _reels = [];
-      _places = [];
-      _hashtags = [];
     });
+    // ⭐ TẢI LẠI SUGGESTIONS SAU KHI XÓA
+    _loadInitialSuggestions();
   }
 
   @override
@@ -285,7 +306,12 @@ class _SearchScreenState extends State<SearchScreen> {
           return const Center(child: Text('No accounts found'));
         }
         if (_accounts.isEmpty) {
-          return const Center(child: Text('Search for users'));
+          return const Center(
+            child: Text(
+              'Loading suggestions...',
+              style: TextStyle(color: Colors.grey),
+            ),
+          );
         }
         return AccountList(
           accounts: _accounts,

@@ -1,3 +1,4 @@
+// lib/data/services/search_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -14,6 +15,7 @@ abstract class SearchService {
   Future<void> followAccount(String accountId);
   Future<void> cancelRequest(String accountId);
   Future<void> unfollowAccount(String accountId);
+  Future<List<AccountItem>> getSuggestedAccounts();
 }
 
 /// Real implementation gọi API
@@ -62,7 +64,7 @@ class RealSearchService implements SearchService {
             name: user['name'] ?? 'Unknown',
             category: user['email'],
             imageUrl: user['avatarUrl'],
-            isFollowing: requestSent || isFriend, // For backward compatibility
+            isFollowing: requestSent || isFriend,
             requestSent: requestSent,
             requestReceived: requestReceived,
             isFriend: isFriend,
@@ -78,8 +80,52 @@ class RealSearchService implements SearchService {
   }
 
   @override
+  Future<List<AccountItem>> getSuggestedAccounts() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('No access token found');
+      }
+
+      print('💡 Loading suggested accounts...');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/friends/suggestions?limit=20'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📡 Suggestions Status: ${response.statusCode}');
+      print('📦 Suggestions Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        return data.map((user) {
+          return AccountItem(
+            id: user['id'] ?? '',
+            name: user['name'] ?? 'Unknown',
+            category: user['email'],
+            imageUrl: user['avatarUrl'],
+            isFollowing: false,
+            requestSent: false,
+            requestReceived: false,
+            isFriend: false,
+          );
+        }).toList();
+      } else {
+        throw Exception('Failed to load suggestions: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error loading suggestions: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Future<List<ReelItem>> searchReels(String query) async {
-    // Mock data - giữ nguyên cũ
     return [
       ReelItem(
         id: 'r1',
@@ -94,7 +140,6 @@ class RealSearchService implements SearchService {
 
   @override
   Future<List<PlaceItem>> searchPlaces(String query) async {
-    // Mock data - giữ nguyên cũ
     return [
       PlaceItem(
         id: 'p1',
@@ -116,7 +161,6 @@ class RealSearchService implements SearchService {
 
   @override
   Future<List<HashtagItem>> searchHashtags(String query) async {
-    // Mock data - giữ nguyên cũ
     return [
       HashtagItem(id: 'h1', name: '#Fashion', postCount: 156000),
       HashtagItem(id: 'h2', name: '#Lifestyle', postCount: 89000),
@@ -124,9 +168,9 @@ class RealSearchService implements SearchService {
     ];
   }
 
+  // ⭐ GỬI LỜI MỜI KẾT BẠN
   @override
   Future<void> followAccount(String accountId) async {
-    // Không cần implement - chỉ search thôi
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
@@ -141,7 +185,7 @@ class RealSearchService implements SearchService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({}), // ← Thêm empty body
+        body: jsonEncode({}),
       );
 
       print('📡 Friend request status: ${response.statusCode}');
@@ -161,12 +205,7 @@ class RealSearchService implements SearchService {
     }
   }
 
-  @override
-  Future<void> unfollowAccount(String accountId) async {
-    // Không cần implement - chỉ search thôi
-    print('⚠️ Unfollow feature not implemented');
-  }
-
+  // ⭐ HỦY LỜI MỜI KẾT BẠN ĐÃ GỬI
   @override
   Future<void> cancelRequest(String accountId) async {
     try {
@@ -177,8 +216,9 @@ class RealSearchService implements SearchService {
 
       print('❌ Canceling friend request to: $accountId');
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/friends/reject/$accountId'),
+      // ✅ GỌI ENDPOINT MỚI: DELETE /friends/request/:userId
+      final response = await http.delete(
+        Uri.parse('$baseUrl/friends/request/$accountId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -188,14 +228,56 @@ class RealSearchService implements SearchService {
       print('📡 Cancel status: ${response.statusCode}');
       print('📦 Response: ${response.body}');
 
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Failed to cancel request');
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('✅ Friend request canceled successfully');
+        return;
       }
 
-      print('✅ Friend request canceled successfully');
+      // Xử lý lỗi
+      if (response.body.isNotEmpty) {
+        final errorBody = jsonDecode(response.body);
+        throw Exception(errorBody['message'] ?? 'Failed to cancel request');
+      } else {
+        throw Exception('Failed to cancel request: ${response.statusCode}');
+      }
     } catch (e) {
       print('❌ Error canceling friend request: $e');
+      rethrow;
+    }
+  }
+
+  // ⭐ XÓA BẠN BÈ (nếu đã là bạn)
+  @override
+  Future<void> unfollowAccount(String accountId) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('No access token found');
+      }
+
+      print('👋 Unfriending: $accountId');
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/friends/$accountId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📡 Unfriend status: ${response.statusCode}');
+      print('📦 Response: ${response.body}');
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorBody = response.body.isNotEmpty
+            ? jsonDecode(response.body)
+            : {'message': 'Failed to unfriend'};
+        throw Exception(errorBody['message'] ?? 'Failed to unfriend');
+      }
+
+      print('✅ Unfriended successfully');
+    } catch (e) {
+      print('❌ Error unfriending: $e');
       rethrow;
     }
   }
@@ -261,6 +343,12 @@ class MockSearchService implements SearchService {
   }
 
   @override
+  Future<List<AccountItem>> getSuggestedAccounts() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return _mockAccounts;
+  }
+
+  @override
   Future<List<ReelItem>> searchReels(String query) async {
     await Future.delayed(const Duration(milliseconds: 500));
     return _mockReels
@@ -293,7 +381,7 @@ class MockSearchService implements SearchService {
   @override
   Future<void> unfollowAccount(String accountId) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    print('✅ Mock: Canceled friend request to $accountId');
+    print('✅ Mock: Unfriended $accountId');
   }
 
   @override
