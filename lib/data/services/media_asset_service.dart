@@ -21,9 +21,7 @@ class MediaAssetService {
       }
 
       final query = <String, String>{};
-      // Chỉ gửi type, bỏ category tạm thời
       if (type != null) query['type'] = type;
-      // if (category != null) query['category'] = category;
       if (isFeatured != null) query['isFeatured'] = isFeatured.toString();
 
       final uri = Uri.parse('$baseUrl/media-library').replace(queryParameters: query);

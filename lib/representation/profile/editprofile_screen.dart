@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_media_app/representation/auth/auth_service.dart';
-import 'package:image_picker/image_picker.dart';
+// import 'package:image_picker/image_picker.dart';
 import 'package:flutter_social_media_app/data/services/user_service.dart';
 import 'package:flutter_social_media_app/widgets/show_snackbar.dart';
+import 'package:flutter_social_media_app/representation/profile/avatar_picker_sheet.dart';
 
 class EditprofileScreen extends StatefulWidget {
   const EditprofileScreen({super.key});
@@ -16,7 +17,7 @@ class _EditprofileScreenState extends State<EditprofileScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  final ImagePicker _picker = ImagePicker();
+  // final ImagePicker _picker = ImagePicker();
   final UserService _userService = UserService();
   final AuthService _authService = AuthService();
 
@@ -69,11 +70,6 @@ class _EditprofileScreenState extends State<EditprofileScreen> {
     try {
       String? newAvatarUrl = _currentAvatarUrl;
 
-      if (_selectedImage != null) {
-        // TODO: Upload image to server
-        ShowSnackbar.showError(context, 'Image upload not implemented yet');
-      }
-
       final updatedUser = await _userService.updateUserProfile(
         userId: _userId!,
         name: _nameController.text.trim(),
@@ -94,6 +90,59 @@ class _EditprofileScreenState extends State<EditprofileScreen> {
       print('❌ Error updating profile: $e');
       if (mounted) {
         ShowSnackbar.showError(context, 'Failed to update profile: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      // Show avatar picker sheet
+      final selectedUrl = await showModalBottomSheet<String?>(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => const AvatarPickerSheet(),
+      );
+
+      if (selectedUrl != null) {
+        setState(() {
+          _currentAvatarUrl = selectedUrl;
+          _selectedImage = null; // Clear file selection if any
+        });
+
+        // Immediately update profile with new avatar
+        await _updateAvatarOnly(selectedUrl);
+      }
+    } catch (e) {
+      if (mounted) {
+        ShowSnackbar.showError(context, 'Lỗi khi chọn ảnh: $e');
+      }
+    }
+  }
+
+  Future<void> _updateAvatarOnly(String avatarUrl) async {
+    try {
+      setState(() => _isSaving = true);
+
+      await _userService.updateUserProfile(
+        userId: _userId!,
+        avatarUrl: avatarUrl,
+      );
+
+      if (mounted) {
+        ShowSnackbar.showSuccess(context, '✅ Avatar updated!');
+      }
+    } catch (e) {
+      print('❌ Error updating avatar: $e');
+      if (mounted) {
+        ShowSnackbar.showError(context, 'Failed to update avatar: $e');
+        // Rollback
+        setState(() {
+          _currentAvatarUrl = null;
+        });
       }
     } finally {
       if (mounted) {
@@ -163,27 +212,27 @@ class _EditprofileScreenState extends State<EditprofileScreen> {
                                     ),
                                   )
                                 : _currentAvatarUrl != null
-                                ? ClipOval(
-                                    child: Image.network(
-                                      _currentAvatarUrl!,
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
+                                    ? ClipOval(
+                                        child: Image.network(
+                                          _currentAvatarUrl!,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error,
+                                              stackTrace) {
                                             return const Icon(
                                               Icons.person,
                                               size: 60,
                                               color: Color(0xFFB39DDB),
                                             );
                                           },
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.person,
-                                    size: 60,
-                                    color: Color(0xFFB39DDB),
-                                  ),
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: Color(0xFFB39DDB),
+                                      ),
                           ),
                           Positioned(
                             bottom: 0,
@@ -195,11 +244,23 @@ class _EditprofileScreenState extends State<EditprofileScreen> {
                                 color: Color(0xFFFF6B35),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.edit,
-                                size: 18,
-                                color: Colors.white,
-                              ),
+                              child: _isSaving
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          Colors.white,
+                                        ),
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.edit,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
                             ),
                           ),
                         ],
@@ -298,26 +359,5 @@ class _EditprofileScreenState extends State<EditprofileScreen> {
         ),
       ],
     );
-  }
-
-  Future<void> _pickImage() async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ShowSnackbar.showError(context, 'Lỗi khi chọn ảnh: $e');
-      }
-    }
   }
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/post_model.dart';
+import '../models/comment_model.dart';
 import 'token_manager.dart';
 
 class PostService {
@@ -110,6 +111,94 @@ class PostService {
       }
     } catch (e) {
       print('❌ Error creating post: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<CommentModel>> getComments(String postId, {int page = 1, int limit = 20}) async {
+    try {
+      final token = await _tokenManager.accessToken;
+      if (token == null) throw Exception('No access token');
+
+      // URL Query params: ?page=1&limit=20
+      final url = Uri.parse('$baseUrl/posts/$postId/comments?page=$page&limit=$limit');
+      
+      print('🔍 Fetching comments: $url');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📡 Comments Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        
+        // Backend trả về: { "data": [...], "meta": {...} }
+        final List<dynamic> rawList = jsonData['data'] ?? [];
+        
+        // MAP DỮ LIỆU: Backend trả 'author', Model cần 'user'
+        final mappedList = rawList.map((item) {
+          if (item is Map<String, dynamic>) {
+            // Nếu có key 'author' mà chưa có 'user', gán 'author' sang 'user'
+            if (item.containsKey('author') && !item.containsKey('user')) {
+              item['user'] = item['author'];
+            }
+          }
+          return item;
+        }).toList();
+
+        return mappedList.map((e) => CommentModel.fromJson(e)).toList();
+      } else {
+        print('❌ Failed response: ${response.body}');
+        throw Exception('Failed to load comments: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error fetching comments: $e');
+      return []; // Trả về list rỗng thay vì crash để UI vẫn hiển thị
+    }
+  }
+
+  Future<CommentModel> addComment(String postId, String content) async {
+    try {
+      final token = await _tokenManager.accessToken;
+      final url = Uri.parse('$baseUrl/posts/$postId/comments');
+
+      print('📝 Adding comment to $postId: $content');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'content': content,
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final dynamic rawData = jsonData['data'] ?? jsonData;
+        
+        // MAP DỮ LIỆU cho Single Item
+        if (rawData is Map<String, dynamic>) {
+           if (rawData.containsKey('author') && !rawData.containsKey('user')) {
+              rawData['user'] = rawData['author'];
+            }
+        }
+
+        print('✅ Comment added successfully');
+        return CommentModel.fromJson(rawData);
+      } else {
+        throw Exception('Failed to post comment: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Error posting comment: $e');
       rethrow;
     }
   }
