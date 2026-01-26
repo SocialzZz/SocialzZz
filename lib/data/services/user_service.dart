@@ -19,7 +19,7 @@ class UserService {
 
       print('🔑 Using token: ${token.substring(0, 20)}...');
 
-      final url = Uri.parse('$baseUrl/auth/me');
+      final url = Uri.parse('$baseUrl/users/$userId');
       print('🔍 Fetching profile from: $url');
 
       final response = await http.get(

@@ -143,114 +143,54 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _toggleFollow(AccountItem account) async {
-    if (account.requestSent) {
-      await _cancelRequest(account);
-      return;
-    }
+    final String userId = account.id;
 
-    // If already friend, do nothing
+    // A. NẾU ĐÃ LÀ BẠN -> THỰC HIỆN UNFRIEND
     if (account.isFriend) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('💥 Already friends'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      _updateUI(
+        userId,
+        isFriend: false,
+      ); // Chuyển về trạng thái Add Friend ngay
+      try {
+        // Gọi @Delete('friends/:userId') trong backend của bạn
+        await _searchService.unfollowAccount(userId);
+      } catch (e) {
+        _updateUI(userId, isFriend: true); // Rollback nếu lỗi
+      }
       return;
     }
 
-    // Optimistic update
-    setState(() {
-      final index = _accounts.indexWhere((a) => a.id == account.id);
-      if (index != -1) {
-        _accounts[index] = account.copyWith(requestSent: true);
+    // B. NẾU ĐANG PENDING -> THỰC HIỆN HỦY (CANCEL)
+    if (account.requestSent) {
+      _updateUI(userId, reqSent: false);
+      try {
+        await _searchService.cancelRequest(userId);
+      } catch (e) {
+        _updateUI(userId, reqSent: true);
       }
-    });
+      return;
+    }
 
+    // C. NẾU CHƯA LÀ GÌ -> THỰC HIỆN ADD FRIEND
+    _updateUI(userId, reqSent: true); // Chuyển sang Pending ngay
     try {
-      // Send friend request
-      await _searchService.followAccount(account.id);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Request sent!'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
+      await _searchService.followAccount(userId);
     } catch (e) {
-      // Rollback on error
-      setState(() {
-        final index = _accounts.indexWhere((a) => a.id == account.id);
-        if (index != -1) {
-          _accounts[index] = account.copyWith(requestSent: false);
-        }
-      });
-
-      if (mounted) {
-        String errorMsg = e.toString().replaceAll('Exception: ', '');
-
-        // If "already exists" error, still keep requestSent as true
-        if (errorMsg.contains('already exists')) {
-          setState(() {
-            final index = _accounts.indexWhere((a) => a.id == account.id);
-            if (index != -1) {
-              _accounts[index] = account.copyWith(requestSent: true);
-            }
-          });
-          return;
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('⚠️ $errorMsg'),
-            backgroundColor: Colors.orange,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      _updateUI(userId, reqSent: false);
     }
   }
 
-  Future<void> _cancelRequest(AccountItem account) async {
-    // Optimistic update
+  // Hàm bổ trợ cập nhật danh sách tại chỗ
+  void _updateUI(String id, {bool? reqSent, bool? isFriend}) {
     setState(() {
-      final index = _accounts.indexWhere((a) => a.id == account.id);
+      final index = _accounts.indexWhere((a) => a.id == id);
       if (index != -1) {
-        _accounts[index] = account.copyWith(requestSent: false);
+        _accounts[index] = _accounts[index].copyWith(
+          requestSent: reqSent,
+          isFriend: isFriend,
+        );
       }
     });
-
-    try {
-      await _searchService.cancelRequest(account.id);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Request canceled'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      // Rollback on error
-      setState(() {
-        final index = _accounts.indexWhere((a) => a.id == account.id);
-        if (index != -1) {
-          _accounts[index] = account.copyWith(requestSent: true);
-        }
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
   }
 
   void _clearSearch() {

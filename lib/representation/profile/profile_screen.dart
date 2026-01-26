@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_media_app/data/services/token_manager.dart';
 import 'package:flutter_social_media_app/routes/route_names.dart';
 import 'package:flutter_social_media_app/widgets/circle_icon_btn.dart';
 import 'package:flutter_social_media_app/data/services/user_service.dart';
@@ -25,11 +26,13 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   static const Color mainOrange = Color(0xFFF9622E);
   static const Color greyText = Color(0xFF797979);
+  bool isMe = false;
 
   late Future<UserModel> _userFuture;
   final UserService _userService = UserService();
 
   late TabController _tabController;
+  final TokenManager _tokenManager = TokenManager();
 
   // DỮ LIỆU GIẢ LẬP (Giữ nguyên)
   final List<PostItem> _feeds = List.generate(
@@ -55,6 +58,32 @@ class _ProfileScreenState extends State<ProfileScreen>
     _tabController = TabController(length: 3, vsync: this);
     // Khởi tạo gọi API lấy thông tin User từ Prisma
     _userFuture = _userService.fetchUserProfile(widget.userId);
+    _initData();
+
+    _checkOwnership();
+  }
+
+  void _initData() {
+    _userFuture = _userService.fetchUserProfile(widget.userId);
+    isMe = (_tokenManager.userId == widget.userId);
+  }
+
+  @override
+  void didUpdateWidget(covariant ProfileScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.userId != widget.userId) {
+      setState(() {
+        _initData();
+      });
+    }
+  }
+
+  void _checkOwnership() {
+    // So sánh ID truyền vào với ID đang lưu trong máy
+    final currentUserId = _tokenManager.userId;
+    setState(() {
+      isMe = (currentUserId == widget.userId);
+    });
   }
 
   @override
@@ -288,6 +317,40 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildActionButtons() {
+    // Nếu là chính mình, không hiển thị cụm nút Follow/Message
+    if (isMe) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: () {
+              // Có thể điều hướng đến trang Edit Profile ở đây nếu muốn
+              Navigator.pushNamed(context, RouteNames.editProfile).then((
+                value,
+              ) {
+                if (value != null)
+                  setState(() {
+                    _userFuture = _userService.fetchUserProfile(widget.userId);
+                  });
+              });
+            },
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.grey),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+            child: const Text(
+              "Edit Profile",
+              style: TextStyle(color: Colors.black87),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Hiển thị cho người dùng khác
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Row(

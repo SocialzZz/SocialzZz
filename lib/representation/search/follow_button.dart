@@ -7,6 +7,7 @@ class FollowButton extends StatelessWidget {
   final Color accent;
   final VoidCallback? onTap;
   final VoidCallback? onCancel;
+  final VoidCallback? onUnfriend; // Thêm callback cho Unfriend
 
   const FollowButton({
     super.key,
@@ -16,30 +17,34 @@ class FollowButton extends StatelessWidget {
     required this.accent,
     this.onTap,
     this.onCancel,
+    this.onUnfriend,
   });
 
   @override
   Widget build(BuildContext context) {
-    // If already friends
+    // 1. TRƯỜNG HỢP: ĐÃ LÀ BẠN -> Hiển thị "Unfriend"
     if (isFriend) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.grey, width: 1.4),
-        ),
-        child: const Text(
-          'Friends',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
+      return GestureDetector(
+        onTap: onUnfriend,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.red.shade300, width: 1.4),
+          ),
+          child: Text(
+            'Unfriend',
+            style: TextStyle(
+              color: Colors.red.shade300,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       );
     }
 
-    // If request sent - show Cancel button
+    // 2. TRƯỜNG HỢP: ĐÃ GỬI YÊU CẦU -> Hiển thị "Pending" (Thay cho Cancel Request)
     if (requestSent) {
       return GestureDetector(
         onTap: onCancel,
@@ -48,9 +53,10 @@ class FollowButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: accent, width: 1.4),
+            color: accent.withOpacity(0.1), // Làm nổi bật trạng thái chờ
           ),
           child: Text(
-            'Cancel request',
+            'Pending',
             style: TextStyle(
               color: accent,
               fontSize: 14,
@@ -61,7 +67,7 @@ class FollowButton extends StatelessWidget {
       );
     }
 
-    // Default - Add Friend button
+    // 3. TRƯỜNG HỢP MẶC ĐỊNH: CHƯA GỬI -> Hiển thị "Add Friend"
     return GestureDetector(
       onTap: onTap,
       child: Container(

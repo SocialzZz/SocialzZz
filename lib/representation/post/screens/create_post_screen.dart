@@ -14,7 +14,7 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   static const Color mainOrange = Color(0xFFF9622E);
-  
+
   late final CreatePostController _controller;
 
   @override
@@ -48,55 +48,68 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      width: 36, 
+                      width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white, 
-                        shape: BoxShape.circle, 
-                        border: Border.all(color: const Color(0xFFE2E5E9))
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFE2E5E9)),
                       ),
                       child: IconButton(
-                        padding: EdgeInsets.zero, 
+                        padding: EdgeInsets.zero,
                         iconSize: 20,
-                        icon: const Icon(Icons.arrow_back, color: Color(0xFF1D1B20)),
-                        onPressed: () => Navigator.of(context).maybePop(),
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Color(0xFF1D1B20),
+                        ),
+                        onPressed: () => Navigator.maybePop(context),
                       ),
                     ),
                     const Text(
-                      'Create Post', 
+                      'Create Post',
                       style: TextStyle(
-                        fontFamily: 'Roboto', 
-                        fontWeight: FontWeight.w700, 
-                        fontSize: 18, 
-                        color: Colors.white
-                      )
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
                     ListenableBuilder(
                       listenable: _controller,
                       builder: (context, _) {
                         return TextButton(
-                          onPressed: _controller.isUploading ? null : _controller.handlePostToFirebase,
+                          onPressed: _controller.isUploading
+                              ? null
+                              : _controller.handlePostToFirebase,
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             minimumSize: const Size(60, 36),
                           ),
-                          child: _controller.isUploading 
-                            ? const SizedBox(
-                                width: 16, 
-                                height: 16, 
-                                child: CircularProgressIndicator(strokeWidth: 2, color: mainOrange)
-                              )
-                            : const Text(
-                                'POST', 
-                                style: TextStyle(
-                                  fontFamily: 'Roboto', 
-                                  fontWeight: FontWeight.w700, 
-                                  fontSize: 14, 
-                                  color: mainOrange
+                          child: _controller.isUploading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: mainOrange,
+                                  ),
                                 )
-                              ),
+                              : const Text(
+                                  'POST',
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: mainOrange,
+                                  ),
+                                ),
                         );
                       },
                     ),
@@ -112,22 +125,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30), 
-                  topRight: Radius.circular(30)
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
                 ),
               ),
               child: Column(
                 children: [
                   const SizedBox(height: 10),
                   Container(
-                    width: 40, 
-                    height: 4, 
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300], 
-                      borderRadius: BorderRadius.circular(2)
-                    )
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  
+
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(16, 20, 16, 120),
@@ -147,7 +160,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               ],
                               _buildHashtagsSection(),
                               const SizedBox(height: 16),
-                              if (_controller.selectedImages.isNotEmpty) 
+                              if (_controller.selectedImages.isNotEmpty)
                                 PostImageGrid(controller: _controller),
                             ],
                           );
@@ -155,7 +168,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       ),
                     ),
                   ),
-                  
+
                   PostActionBar(controller: _controller),
                 ],
               ),
@@ -171,8 +184,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E5E9)), 
-        borderRadius: BorderRadius.circular(10)
+        border: Border.all(color: const Color(0xFFE2E5E9)),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,14 +195,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               const Icon(Icons.people, size: 16, color: mainOrange),
               const SizedBox(width: 6),
               Text(
-                "Cùng với ${_controller.taggedFriends.length} người khác:", 
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)
+                "Cùng với ${_controller.taggedFriends.length} người khác:",
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Wrap(
-            spacing: 8, 
+            spacing: 8,
             runSpacing: 8,
             children: _controller.taggedFriends.map((friend) {
               return Chip(
@@ -198,7 +214,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 onDeleted: () => _controller.removeTaggedFriend(friend),
                 backgroundColor: Colors.grey[100],
                 side: BorderSide(color: Colors.grey.shade300),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               );
             }).toList(),
           ),
@@ -212,21 +230,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Suggested Hashtags", 
+          "Suggested Hashtags",
           style: TextStyle(
-            fontFamily: 'Roboto', 
-            fontWeight: FontWeight.bold, 
-            fontSize: 13, 
-            color: Colors.grey
-          )
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            color: Colors.grey,
+          ),
         ),
         const SizedBox(height: 10),
         Wrap(
-          spacing: 8, 
+          spacing: 8,
           runSpacing: 8,
-          children: ["#Flutter", "#Coding", "#MobileApp", "#LifeStyle"]
-              .map((tag) => _buildHashtagChip(tag))
-              .toList(),
+          children: [
+            "#Flutter",
+            "#Coding",
+            "#MobileApp",
+            "#LifeStyle",
+          ].map((tag) => _buildHashtagChip(tag)).toList(),
         ),
       ],
     );
@@ -244,12 +265,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           border: Border.all(color: Colors.orange.withOpacity(0.3)),
         ),
         child: Text(
-          text, 
+          text,
           style: const TextStyle(
-            color: mainOrange, 
-            fontWeight: FontWeight.w500, 
-            fontSize: 12
-          )
+            color: mainOrange,
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
         ),
       ),
     );
