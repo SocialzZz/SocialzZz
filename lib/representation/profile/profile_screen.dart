@@ -340,10 +340,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
               ),
+              backgroundColor: Color(0xFFF9622E),
             ),
             child: const Text(
               "Edit Profile",
-              style: TextStyle(color: Colors.black87),
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ),
