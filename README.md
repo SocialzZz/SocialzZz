@@ -526,11 +526,6 @@ flutter run
 
 MIT License - Xem file [LICENSE](../LICENSE)
 
-## 📞 Liên hệ
-
-- **GitHub**: [SocialzZz Flutter](https://github.com/SocialzZz/SocialzZz)
-- **Email**: doanbao690@gmail.com
-
 ## 📚 Resources
 
 - [Flutter Documentation](https://docs.flutter.dev/)
